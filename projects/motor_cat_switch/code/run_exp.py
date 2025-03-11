@@ -1,39 +1,8 @@
-"""
-- This project examines category learning while switching on
-  a psuedo-random trial-by-trial basis between between
-  sub-tasks that require 100% incongruent / conflicting
-  stimulus-response mappings.
-
-- It follows from Crossley et al. which showed that learning
-  while switching between such sub-tasks can occur but
-  apparently only if the response keys used within each
-  sub-task were distinct.
-
-    - sub-task 1 required S-R associations {S-R1, S-R2}
-    - sub-task 1 required S-R associations {S-R3, S-R4}
-
-- Learning did not occur / was severely impaired if the same
-  response keys were used in both sub-tasks.
-
-    - sub-task 1 required S-R associations {S-R1, S-R2}
-    - sub-task 1 required S-R associations {S-R1, S-R2}
-
-- It therefore appears that unique motor plans (i.e., as
-  implied by unique response keys) are required to faciliate
-  learning while task switching.
-
-- However, it is unclear in this context what exactly
-  constitutes a "motor plan". In particular, is it critical
-  that unique motor effectors (e.g., fingers) be used,
-  unique goal positions (e.g., response key), or both? We
-  address that question here.
-"""
-
 from imports import *
 from util_func import *
 
 # set subject number
-subject = 99999
+subject = 3
 dir_data = "../data"
 f_name = f"sub_{subject}_data.csv"
 full_path = os.path.join(dir_data, f_name)
@@ -45,66 +14,51 @@ if os.path.exists(full_path):
 
 condition_1 = {
     'name':
-    "2F2K_congruent",
+    "congruent_pointer_middle",
     'context': ["S", "S", "D", "D"],
-    'effector': ["L1", "R1", "L1", "R1"],
-    'resp_key': [pygame.K_s, pygame.K_k, pygame.K_s, pygame.K_k],
+    'effector': ["L1", "R1", "L2", "R2"],
+    'resp_key': [pygame.K_f, pygame.K_j, pygame.K_d, pygame.K_k],
     'stim_region': ["A", "B", "A", "B"],
     'cue_img': [
-        pygame.image.load("../images/2_Finger_Context_1.png"),
-        pygame.image.load("../images/2_Finger_Context_1.png"),
-        pygame.image.load("../images/2_Finger_Context_2.png"),
-        pygame.image.load("../images/2_Finger_Context_2.png")
+        pygame.image.load("../images/cue_pointer_middle_2.png"),
+        pygame.image.load("../images/cue_pointer_middle_2.png"),
+        pygame.image.load("../images/cue_pointer_middle_1.png"),
+        pygame.image.load("../images/cue_pointer_middle_1.png")
     ]
 }
 
 condition_2 = {
     "name":
-    "2F2K_incongruent",
+    "incongruent_pointer_middle",
     "context": ["S", "S", "D", "D"],
-    "effector": ["L1", "R1", "L1", "R1"],
-    "resp_key": [pygame.K_s, pygame.K_k, pygame.K_s, pygame.K_k],
+    "effector": ["L1", "R1", "L2", "R2"],
+    'resp_key': [pygame.K_f, pygame.K_j, pygame.K_d, pygame.K_k],
     "stim_region": ["A", "B", "B", "A"],
     'cue_img': [
-        pygame.image.load("../images/2_Finger_Context_1.png"),
-        pygame.image.load("../images/2_Finger_Context_1.png"),
-        pygame.image.load("../images/2_Finger_Context_2.png"),
-        pygame.image.load("../images/2_Finger_Context_2.png")
+        pygame.image.load("../images/cue_pointer_middle_2.png"),
+        pygame.image.load("../images/cue_pointer_middle_2.png"),
+        pygame.image.load("../images/cue_pointer_middle_1.png"),
+        pygame.image.load("../images/cue_pointer_middle_1.png")
     ]
 }
 
 condition_3 = {
     "name":
-    "4F4K_congruent",
+    "incongruent_pinky_thumb",
     "context": ["S", "S", "D", "D"],
     "effector": ["L1", "R1", "L2", "R2"],
-    "resp_key": [pygame.K_s, pygame.K_k, pygame.K_a, pygame.K_l],
-    "stim_region": ["A", "B", "A", "B"],
-    'cue_img': [
-        pygame.image.load("../images/4_Finger_Context_1.png"),
-        pygame.image.load("../images/4_Finger_Context_1.png"),
-        pygame.image.load("../images/4_Finger_Context_2.png"),
-        pygame.image.load("../images/4_Finger_Context_2.png")
-    ]
-}
-
-condition_4 = {
-    "name":
-    "4F4K_incongruent",
-    "context": ["S", "S", "D", "D"],
-    "effector": ["L1", "R1", "L2", "R2"],
-    "resp_key": [pygame.K_s, pygame.K_k, pygame.K_a, pygame.K_l],
+    "resp_key": [pygame.K_c, pygame.K_m, pygame.K_q, pygame.K_p],
     "stim_region": ["A", "B", "B", "A"],
     'cue_img': [
-        pygame.image.load("../images/4_Finger_Context_1.png"),
-        pygame.image.load("../images/4_Finger_Context_1.png"),
-        pygame.image.load("../images/4_Finger_Context_2.png"),
-        pygame.image.load("../images/4_Finger_Context_2.png")
+        pygame.image.load("../images/cue_pinky_thumb_1.png"),
+        pygame.image.load("../images/cue_pinky_thumb_1.png"),
+        pygame.image.load("../images/cue_pinky_thumb_2.png"),
+        pygame.image.load("../images/cue_pinky_thumb_2.png")
     ]
 }
 
-condition_list = [condition_1, condition_2, condition_3, condition_4]
-condition = pd.DataFrame(condition_list[(subject - 1) % 4])
+condition_list = [condition_1, condition_2, condition_3]
+condition = pd.DataFrame(condition_list[(subject - 1) % len(condition_list)])
 
 ds = make_stim_cats()
 
