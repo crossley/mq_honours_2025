@@ -44,6 +44,21 @@ condition_2 = {
 
 condition_3 = {
     "name":
+    "congruent_pinky_thumb",
+    "context": ["S", "S", "D", "D"],
+    "effector": ["L1", "R1", "L2", "R2"],
+    "resp_key": [pygame.K_c, pygame.K_m, pygame.K_q, pygame.K_p],
+    "stim_region": ["A", "B", "A", "A"],
+    'cue_img': [
+        pygame.image.load("../images/cue_pinky_thumb_1.png"),
+        pygame.image.load("../images/cue_pinky_thumb_1.png"),
+        pygame.image.load("../images/cue_pinky_thumb_2.png"),
+        pygame.image.load("../images/cue_pinky_thumb_2.png")
+    ]
+}
+
+condition_4 = {
+    "name":
     "incongruent_pinky_thumb",
     "context": ["S", "S", "D", "D"],
     "effector": ["L1", "R1", "L2", "R2"],
@@ -57,7 +72,7 @@ condition_3 = {
     ]
 }
 
-condition_list = [condition_1, condition_2, condition_3]
+condition_list = [condition_1, condition_2, condition_3, condition_4]
 condition = pd.DataFrame(condition_list[(subject - 1) % len(condition_list)])
 
 ds = make_stim_cats()
