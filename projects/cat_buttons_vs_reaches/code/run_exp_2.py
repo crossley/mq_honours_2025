@@ -1,12 +1,8 @@
 from imports import *
 from util_func import *
 
-"""
-Exp 1: Replicate Exp 1 Crossley et al (2013) but with explicit instructions
-"""
-
 # set subject number
-subject = 999
+subject = 1
 dir_data = "../data"
 f_name = f"sub_{subject}_data.csv"
 full_path = os.path.join(dir_data, f_name)
@@ -18,10 +14,10 @@ if os.path.exists(full_path):
 
 experiment_1_relearn = {"experiment": 1, "condition": "relearn"}
 experiment_1_new_learn = {"experiment": 1, "condition": "new_learn"}
-experiment_2_relearn = {"experiment": 2, "condition": "relearn"}
-experiment_2_new_learn = {"experiment": 2, "condition": "new_learn"}
-experiment_3_relearn = {"experiment": 3, "condition": "relearn"}
-experiment_3_new_learn = {"experiment": 3, "condition": "new_learn"}
+# experiment_2_relearn = {"experiment": 2, "condition": "relearn"}
+# experiment_2_new_learn = {"experiment": 2, "condition": "new_learn"}
+# experiment_3_relearn = {"experiment": 3, "condition": "relearn"}
+# experiment_3_new_learn = {"experiment": 3, "condition": "new_learn"}
 
 # condition_list = [
 #     experiment_1_relearn, experiment_1_new_learn, experiment_2_relearn,
@@ -30,7 +26,7 @@ experiment_3_new_learn = {"experiment": 3, "condition": "new_learn"}
 
 condition_list = [experiment_1_relearn, experiment_1_new_learn]
 
-condition = condition_list[(subject - 1) % 2]
+condition = condition_list[(subject - 1) % len(condition_list)]
 print((subject - 1) % 2)
 print(condition)
 

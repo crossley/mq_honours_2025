@@ -1,7 +1,3 @@
-"""
-- This project aims to followup Hewitson et al. MIS paper
-"""
-
 import sys
 import os
 import serial
@@ -11,12 +7,10 @@ import pygame
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
-
-current_date = datetime.now().strftime("%Y-%m-%d")
 
 subject = 1
 dir_data = "../data"
+f_name = f"sub_{subject}_data.csv"
 full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
 full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
 
@@ -124,75 +118,45 @@ if use_liberty:
 # px_per_cm = np.mean([1920 / 60, 1080 / 33])
 px_per_cm = 1080 / 33
 
-target_angles = [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150]
+n_trial = 430
 
-rng = np.random.default_rng()
+condition_list = ["blocked", "interleaved"]
+condition = condition_list[(subject - 1) % 2]
 
-# The experiment began with a familiarization phase of 33
-# reach trials (3 trials per target in pseudorandom order)
-# with continuous veridical visual feedback provided
-# throughout the reach.
-endpoint_visible_familiarisation = np.ones(33)
-rotation_familiarisation = np.zeros(33)
-target_angle_familiarisation = rng.permutation(np.array(target_angles * 3))
+low_su = 0.000000000001 * px_per_cm
+high_su = 0.025 * px_per_cm
 
-# The baseline phase consisted of 198 reach trials across
-# all 11 target directions (18 trials per target). On each
-# trial, the location of the target was randomized across
-# participants. For 2/3 of the reaches (132 trials),
-# continuous veridical cursor feedback was provided
-# throughout the trial. For the remaining 1/3 (66 trials),
-# visual feedback was completely withheld (i.e., no feedback
-# was given during the reach and no feedback was given at
-# the end of the reach about reach accuracy).
-endpoint_visible_basline = np.concatenate((np.zeros(66), np.ones(132)))
-rotation_baseline = np.zeros(198)
-target_angle_baseline = rng.permutation(np.array(target_angles * 18))
+su_interleaved = np.random.choice([low_su * px_per_cm, high_su * px_per_cm],
+                                  n_trial)
 
-# The adaptation phase consisted of 110 reaches toward a
-# single target positioned at 0° in the frontal plane
-# (straight ahead; see Fig. 1b). During this phase, endpoint
-# feedback was rotated about the starting position by 30°
-# (CW or CCW; counterbalanced between participants).
-endpoint_visible_adaptation = np.ones(110)
-rotation_adaptation = np.ones(110) * 30 * np.pi / 180
-target_angle_adaptation = np.zeros(110)
+su_1 = low_su * px_per_cm * np.ones(n_trial // 2)
+su_2 = high_su * px_per_cm * np.ones(n_trial // 2)
+if np.random.rand() > 0.5:
+    su_blocked = np.concatenate((su_1, su_2))
+else:
+    su_blocked = np.concatenate((su_2, su_1))
 
-# The generalization phase consisted of 66 reaches to 1 of
-# 11 target directions (10 untrained directions) presented
-# in pseudorandom order without visual feedback.
-endpoint_visible_generalization = np.zeros(66)
-rotation_generalization = np.ones(66) * 30 * np.pi / 180
-target_angle_generalization = np.concatenate(
-    [rng.permutation(target_angles) for _ in range(6)])
-endpoint_visible_generalization[target_angle_generalization == 0] = 1
+if condition == "interleaved":
+    su = su_interleaved
+elif condition == "blocked":
+    su = su_blocked
 
-# concatenate all phases
-endpoint_visible = np.concatenate([
-    endpoint_visible_familiarisation, endpoint_visible_basline,
-    endpoint_visible_adaptation, endpoint_visible_generalization
-])
+su[:30] = su_interleaved[:30]
 
-rotation = np.concatenate([
-    rotation_familiarisation, rotation_baseline, rotation_adaptation,
-    rotation_generalization
-])
+rotation = np.zeros(n_trial)
+rotation[30:130] = 15 * np.pi / 180
+rotation[230:330] = 15 * np.pi / 180
 
-target_angle = np.concatenate([
-    target_angle_familiarisation, target_angle_baseline,
-    target_angle_adaptation, target_angle_generalization
-])
+endpoint_visible = np.ones(n_trial)
+endpoint_visible[130:180] = 0
+endpoint_visible[330:380] = 0
 
 fig, ax = plt.subplots(3, 1, squeeze=False, figsize=(10, 5))
-ax[0, 0].plot(rotation / rotation.max(), label='rotation')
-ax[1, 0].plot(endpoint_visible, label='endpoint visible')
-ax[2, 0].plot(target_angle, label='target angle')
+ax[0, 0].plot(su / su.max(), label='sensory uncertainty')
+ax[1, 0].plot(rotation / rotation.max(), label='rotation')
+ax[2, 0].plot(endpoint_visible, label='endpoint visible')
 [x.legend() for x in ax.flatten()]
 plt.show()
-
-n_trial = rotation.shape[0]
-condition = "mis_rep"
-su = np.ones(n_trial)
 
 pygame.init()
 
@@ -233,13 +197,14 @@ cursor_radius = 8
 start_radius = 15
 target_radius = 15
 
-n_points = 1
+n_points = 20
 
 # relevant coords
 center_x = screen.get_width() // 2
 center_y = screen.get_height() // 2
 
 start_pos = (center_x, center_y + 2 * px_per_cm)
+target_pos = (center_x, center_y - 6 * px_per_cm)
 
 # create clocks to keep time
 clock_state = pygame.time.Clock()
@@ -262,11 +227,9 @@ resp = -1
 
 # record keeping
 trial_data = {
-    'date': [],
     'condition': [],
     'subject': [],
     'trial': [],
-    'target_angle': [],
     'su': [],
     'rotation': [],
     'rt': [],
@@ -414,7 +377,7 @@ else:
         pygame.display.update()
 
 # set trials / phases
-trial = 0
+trial = 1
 
 running = True
 while running:
@@ -451,9 +414,6 @@ while running:
     else:
         hand_pos = pygame.mouse.get_pos()
 
-    target_pos_x = -6 * px_per_cm * np.cos(-(target_angle[trial] + 90) * np.pi / 180.0)
-    target_pos_y = 6 * px_per_cm * np.sin(-(target_angle[trial] + 90) * np.pi / 180.0)
-    target_pos = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
     cursor_pos = np.dot(np.array(hand_pos) - np.array(start_pos),
                         rot_mat) + start_pos
 
@@ -544,6 +504,21 @@ while running:
             rt = t_state
             t_state = 0
             t_state_2 = 0
+            state_current = "state_ready_to_move"
+
+    if state_current == "state_ready_to_move":
+        t_state += clock_state.tick()
+
+        pygame.draw.circle(screen, blue, start_pos, start_radius)
+        pygame.draw.circle(screen, red, target_pos, target_radius)
+
+        r = np.sqrt((hand_pos[0] - start_pos[0])**2 +
+                    (hand_pos[1] - start_pos[1])**2)
+
+        if r >= start_radius:
+            rt = t_state
+            t_state = 0
+            t_state_2 = 0
             state_current = "state_moving"
 
     if state_current == "state_moving":
@@ -570,14 +545,6 @@ while running:
             cloud = np.random.multivariate_normal(
                 ep_target, [[su[trial]**2, 0], [0, su[trial]**2]], n_points)
 
-            # rotate the cloud by the rotation angle
-            rot_mat = np.array(
-                [[np.cos(rotation[trial]), -np.sin(rotation[trial])],
-                 [np.sin(rotation[trial]),
-                  np.cos(rotation[trial])]])
-
-            cloud_rot = np.dot(cloud - start_pos, rot_mat) + start_pos
-
             t_state = 0
             state_current = "state_feedback_ep"
 
@@ -589,14 +556,12 @@ while running:
 
         if endpoint_visible[trial]:
             for i in range(n_points):
-                pygame.draw.circle(screen, white, cloud_rot[i], cursor_radius)
+                pygame.draw.circle(screen, white, cloud[i], cursor_radius)
 
         if t_state > 1000:
-            trial_data['date'].append(current_date)
             trial_data['condition'].append(condition)
             trial_data['subject'].append(subject)
             trial_data['trial'].append(trial)
-            trial_data['target_angle'].append(target_angle[trial])
             trial_data['su'].append(np.round(su[trial], 2))
             trial_data['rotation'].append(np.round(rotation[trial], 2))
             trial_data['rt'].append(rt)
