@@ -12,7 +12,8 @@ This repo holds code for a variety 2025 honours projects at Macquarie University
 
 2. **Install Python:**  
    - Open the downloaded file.  
-   - **IMPORTANT:** Check the box that says **“Add Python to PATH”** before clicking **Install Now**.  
+   - **IMPORTANT:** **Uncheck** the box that says **“Use admin privileges"”** before clicking **Install Now**.  
+   - **IMPORTANT:** **Check** the box that says **“Add Python to PATH”** before clicking **Install Now**.  
    - Wait for installation to complete, then close the installer.
 
 3. **Verify the installation:**  

@@ -50,7 +50,7 @@ if __name__ == "__main__":
         "context": ["S", "S", "D", "D"],
         "effector": ["L1", "R1", "L2", "R2"],
         "resp_key": [pygame.K_c, pygame.K_m, pygame.K_q, pygame.K_p],
-        "stim_region": ["A", "B", "A", "A"],
+        "stim_region": ["A", "B", "A", "B"],
         'cue_img': [
             pygame.image.load("../images/cue_pinky_thumb_1.png"),
             pygame.image.load("../images/cue_pinky_thumb_1.png"),
@@ -276,12 +276,20 @@ if __name__ == "__main__":
 
                 if sub_task == 1:
 
+                    print("sub_task 1")
+                    print(condition)
+                    print()
+
                     resp_corr = condition.loc[
                         (condition["context"] == "S")
                         & (condition["stim_region"] == ["A", "B"][cat - 1][0]),
                         'resp_key'].values[0]
 
                 elif sub_task == 2:
+
+                    print("sub_task 2")
+                    print(condition)
+                    print()
 
                     resp_corr = condition.loc[
                         (condition["context"] == "D")
