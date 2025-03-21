@@ -153,12 +153,12 @@ if __name__ == "__main__":
     endpoint_visible[130:180] = 0
     endpoint_visible[330:380] = 0
 
-    fig, ax = plt.subplots(3, 1, squeeze=False, figsize=(10, 5))
-    ax[0, 0].plot(su / su.max(), label='sensory uncertainty')
-    ax[1, 0].plot(rotation / rotation.max(), label='rotation')
-    ax[2, 0].plot(endpoint_visible, label='endpoint visible')
-    [x.legend() for x in ax.flatten()]
-    plt.show()
+#    fig, ax = plt.subplots(3, 1, squeeze=False, figsize=(10, 5))
+#    ax[0, 0].plot(su / su.max(), label='sensory uncertainty')
+#    ax[1, 0].plot(rotation / rotation.max(), label='rotation')
+#    ax[2, 0].plot(endpoint_visible, label='endpoint visible')
+#    [x.legend() for x in ax.flatten()]
+#    plt.show()
 
     pygame.init()
 
