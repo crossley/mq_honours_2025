@@ -3,19 +3,19 @@ from util_func import *
 
 if __name__ == "__main__":
 
-    subject = 1
+    subject = 2
     dir_data = "../data"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
     full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
 
     # Uncomment to check if file already exists
     if os.path.exists(full_path):
-        print(f"File {f_name} already exists. Aborting.")
+        print(f"File {full_path} already exists. Aborting.")
         sys.exit()
 
     condition_1 = {"cat": "RB", "resp": "button"}
-    condition_2 = {"cat": "RB", "resp": "button"}
-    condition_3 = {"cat": "II", "resp": "reach"}
+    condition_2 = {"cat": "RB", "resp": "reach"}
+    condition_3 = {"cat": "II", "resp": "button"}
     condition_4 = {"cat": "II", "resp": "reach"}
 
     condition_list = [condition_1, condition_2, condition_3, condition_4]
@@ -24,8 +24,8 @@ if __name__ == "__main__":
     print((subject - 1) % len(condition_list))
     print(condition)
 
-    ds = make_stim_cats()
-
+    ds = make_stim_cats(condition["cat"])
+    ds["cat"] = ds["cat"].map({1: "A", 2: "B"})
     print(ds)
 
     # plot the stimuli coloured by label
@@ -152,6 +152,7 @@ if __name__ == "__main__":
 
     rng = np.random.default_rng()
 
+    # Initialize Pygame
     pygame.init()
 
     # set small window potentially useful for debugging
@@ -159,6 +160,14 @@ if __name__ == "__main__":
     # center_x = screen_width // 2
     # center_y = screen_height // 2
     # screen = pygame.display.set_mode((screen_width, screen_height))
+
+    # useful constants but need to change / verify on each computer
+    pixels_per_inch = 227 / 2
+    px_per_cm = pixels_per_inch / 2.54
+
+    # grating size
+    size_cm = 5
+    size_px = int(size_cm * px_per_cm)
 
     # set full screen
     info = pygame.display.Info()
@@ -206,16 +215,14 @@ if __name__ == "__main__":
     t_state = 0.0
     time_exp = 0.0
 
-    # initial state
-    state_init = "state_init"
-
     # set the current state to the initial state
-    state_current = state_init
+    state_current = "state_init"
 
     # behavioural measurements
     rt = -1
     mt = -1
     ep = -1
+    ep_theta = -1
     resp = -1
 
     # trial counter
@@ -238,9 +245,11 @@ if __name__ == "__main__":
         'xt': [],
         'yt': [],
         'resp': [],
-        'rt': [],
         'fb': [],
         'rotation': [],
+        'su': [],
+        'target_angle_left': [],
+        'target_angle_right': [],
         'rt': [],
         'mt': [],
         'ep': []
@@ -277,7 +286,7 @@ if __name__ == "__main__":
         state_current = "calibrate_upper_left"
         while calibrating:
 
-            screen.fill(grey)
+            screen.fill(black)
 
             hand_pos = getPosition(ser, recordsize, averager)[0:2]
 
@@ -296,7 +305,7 @@ if __name__ == "__main__":
                     (255, 255, 255))
                 text_rect = text.get_rect(center=(screen_width / 2,
                                                   screen_height / 2))
-                screen.fill(grey)
+                screen.fill(black)
                 screen.blit(text, text_rect)
 
                 pos_x = 0 + screen_width / 4
@@ -316,7 +325,7 @@ if __name__ == "__main__":
                     (255, 255, 255))
                 text_rect = text.get_rect(center=(screen_width / 2,
                                                   screen_height / 2))
-                screen.fill(grey)
+                screen.fill(black)
                 screen.blit(text, text_rect)
 
                 pos_x = screen.get_width() - screen_width / 4
@@ -336,7 +345,7 @@ if __name__ == "__main__":
                     (255, 255, 255))
                 text_rect = text.get_rect(center=(screen_width / 2,
                                                   screen_height / 2))
-                screen.fill(grey)
+                screen.fill(black)
                 screen.blit(text, text_rect)
 
                 pos_x = screen_width - screen_width / 4
@@ -357,7 +366,7 @@ if __name__ == "__main__":
                 text_rect = text.get_rect(center=(screen_width / 2,
                                                   screen_height / 2))
 
-                screen.fill(grey)
+                screen.fill(black)
                 screen.blit(text, text_rect)
 
                 pos_x = screen_width / 4
@@ -392,7 +401,7 @@ if __name__ == "__main__":
     while running:
 
         time_exp += clock_exp.tick()
-        screen.fill((0, 0, 0))
+        screen.fill(black)
 
         rot_mat = np.array([[np.cos(rotation[trial]), -np.sin(rotation[trial])],
                             [np.sin(rotation[trial]),
@@ -423,14 +432,16 @@ if __name__ == "__main__":
         else:
             hand_pos = pygame.mouse.get_pos()
 
+        target_distance = 10
+
         target_angle_left = 45
-        target_pos_x = -6 * px_per_cm * np.cos(-(target_angle_left + 90) * np.pi / 180.0)
-        target_pos_y = 6 * px_per_cm * np.sin(-(target_angle_left + 90) * np.pi / 180.0)
+        target_pos_x = -target_distance * px_per_cm * np.cos(-(target_angle_left + 90) * np.pi / 180.0)
+        target_pos_y = target_distance * px_per_cm * np.sin(-(target_angle_left + 90) * np.pi / 180.0)
         target_pos_left = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
 
         target_angle_right = -45
-        target_pos_x = -6 * px_per_cm * np.cos(-(target_angle_right + 90) * np.pi / 180.0)
-        target_pos_y = 6 * px_per_cm * np.sin(-(target_angle_right + 90) * np.pi / 180.0)
+        target_pos_x = -target_distance * px_per_cm * np.cos(-(target_angle_right + 90) * np.pi / 180.0)
+        target_pos_y =  target_distance * px_per_cm * np.sin(-(target_angle_right + 90) * np.pi / 180.0)
         target_pos_right = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
 
         cursor_pos = np.dot(np.array(hand_pos) - np.array(start_pos), rot_mat) + start_pos
@@ -440,25 +451,22 @@ if __name__ == "__main__":
             text = font.render("Please press the space bar to begin", True,
                                (255, 255, 255))
             text_rect = text.get_rect(center=(screen_width / 2, screen_height / 2))
-            screen.fill(grey)
+            screen.fill(black)
             screen.blit(text, text_rect)
 
             if resp == pygame.K_SPACE:
                 t_state = 0
-                resp = -1
-                state_current = "state_searching_ring"
+                if condition["resp"] == "reach":
+                    state_current = "state_searching_ring"
 
-        if state_current == "state_finished":
-            t_state += clock_state.tick()
-            text = font.render("You finished! Thank you for being awesome!", True,
-                               (255, 255, 255))
-            text_rect = text.get_rect(center=(screen_width / 2, screen_height / 2))
-            screen.fill(grey)
-            screen.blit(text, text_rect)
+                elif condition["resp"] == "button":
+                    state_current = "state_iti"
 
         if state_current == "state_iti":
             t_state += clock_state.tick()
-            screen.fill(grey)
+            screen.fill(black)
+            pygame.draw.line(screen, white, (center_x, center_y - 10), (center_x, center_y + 10), 4)
+            pygame.draw.line(screen, white, (center_x - 10, center_y), (center_x + 10, center_y), 4)
             if t_state > 1000:
                 resp = -1
                 rt = -1
@@ -471,27 +479,26 @@ if __name__ == "__main__":
                     ori = ds['yt'].iloc[trial]
                     cat = ds['cat'].iloc[trial]
                     resp = -1
-                    if condition["resp"] == "reach":
-                        state_current = "state_searching_ring"
-                    else:
-                        state_current = "state_stim"
+                    state_current = "state_stim"
 
         if state_current == "state_stim":
-            time_state += clock_state.tick()
-            screen.fill(grey)
+            t_state += clock_state.tick()
+            screen.fill(black)
+            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*1.1)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
-
             screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
 
             if (resp == pygame.K_d) or (resp == pygame.K_k):
-                rt = time_state
-                time_state = 0
+                rt = t_state
+                t_state = 0
 
                 if resp == pygame.K_d:
                     resp = "A"
                 elif resp == pygame.K_k:
                     resp = "B"
+
+                print(cat, resp)
 
                 if cat == resp:
                     fb = "Correct"
@@ -501,43 +508,69 @@ if __name__ == "__main__":
                 state_current = "state_feedback"
 
         if state_current == "state_feedback":
-            time_state += clock_state.tick()
+            t_state += clock_state.tick()
+
+            screen.fill(black)
+            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*1.1)
+            grating_patch = create_grating_patch(size_px, sf, ori)
+            grating_surface = grating_to_surface(grating_patch)
+            screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
 
             if fb == "Correct":
-                pygame.draw.circle(screen, green, (center_x, center_y), size_px / 2 + 10, 5)
+                pygame.draw.circle(screen, green, (center_x, center_y),
+                                   size_px / 2 + 10, 5)
 
             elif fb == "Incorrect":
-                pygame.draw.circle(screen, red, (center_x, center_y), size_px / 2 + 10, 5)
+                pygame.draw.circle(screen, red, (center_x, center_y),
+                                   size_px / 2 + 10, 5)
 
-            if time_state > 1000:
-                trial_data['condition'].append(condition["condition"])
+            if t_state > 1000:
+                trial_data['condition'].append(condition)
                 trial_data['subject'].append(subject)
                 trial_data['trial'].append(trial)
+                trial_data['target_angle_left'].append(target_angle_left)
+                trial_data['target_angle_right'].append(target_angle_right)
+                trial_data['su'].append(np.round(su[trial], 2))
+                trial_data['rotation'].append(np.round(rotation[trial], 2))
+                trial_data['rt'].append(rt)
+                trial_data['mt'].append(mt)
+                trial_data['ep'].append(np.round(ep_theta, 2))
                 trial_data['cat'].append(cat)
                 trial_data['x'].append(ds.x[trial])
                 trial_data['y'].append(ds.y[trial])
                 trial_data['xt'].append(ds.xt[trial])
                 trial_data['yt'].append(ds.yt[trial])
                 trial_data['resp'].append(resp)
-                trial_data['rt'].append(rt)
                 trial_data['fb'].append(fb)
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
-                time_state = 0
-
+                t_state = 0
                 state_current = "state_iti"
 
         if state_current == "state_searching_ring":
             t_state += clock_state.tick()
 
-            r = np.sqrt((hand_pos[0] - start_pos[0])**2 +
-                        (hand_pos[1] - start_pos[1])**2)
+            if trial == n_trial - 1:
+                state_current = "state_finished"
 
-            pygame.draw.circle(screen, blue, start_pos, start_radius)
-            pygame.draw.circle(screen, white, start_pos, r, 2)
+            else:
+                r = np.sqrt((hand_pos[0] - start_pos[0])**2 +
+                            (hand_pos[1] - start_pos[1])**2)
 
-            if r < 2 * start_radius:
-                t_state = 0
-                state_current = "state_searching_cursor"
+                pygame.draw.circle(screen, blue, start_pos, start_radius)
+                pygame.draw.circle(screen, white, start_pos, r, 2)
+
+                if r < 2 * start_radius:
+                    t_state = 0
+
+                    sf = ds['xt'].iloc[trial] * (px_per_cm**-1)
+                    ori = ds['yt'].iloc[trial]
+                    cat = ds['cat'].iloc[trial]
+                    resp = -1
+                    rt = -1
+                    mt = -1
+                    ep = -1
+
+                    state_current = "state_searching_cursor"
 
         if state_current == "state_searching_cursor":
             t_state += clock_state.tick()
@@ -561,11 +594,6 @@ if __name__ == "__main__":
             r = np.sqrt((hand_pos[0] - start_pos[0])**2 +
                         (hand_pos[1] - start_pos[1])**2)
 
-            grating_patch = create_grating_patch(size_px, sf, ori)
-            grating_surface = grating_to_surface(grating_patch)
-            screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
-            screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
-
             # smoothly transition from blue to red with
             # increasing time until next state
             if t_state < 2000:
@@ -576,6 +604,12 @@ if __name__ == "__main__":
                 pygame.draw.circle(screen, state_color, start_pos, start_radius)
                 pygame.draw.circle(screen, white, hand_pos, cursor_radius)
 
+            else:
+                grating_patch = create_grating_patch(size_px, sf, ori)
+                grating_surface = grating_to_surface(grating_patch)
+                screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
+                screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
+
             if r >= start_radius:
                 t_state = 0
                 state_current = "state_searching_cursor"
@@ -583,7 +617,6 @@ if __name__ == "__main__":
             elif t_state > 2000:
                 rt = t_state
                 t_state = 0
-                t_state_2 = 0
                 state_current = "state_moving"
 
         if state_current == "state_moving":
@@ -591,16 +624,27 @@ if __name__ == "__main__":
 
             pygame.draw.circle(screen, blue, start_pos, start_radius)
 
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*1.1)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*1.1)
+
             screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
             screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
             r = np.sqrt((hand_pos[0] - start_pos[0])**2 +
                         (hand_pos[1] - start_pos[1])**2)
 
-            r_target = np.sqrt((target_pos[0] - start_pos[0])**2 +
-                               (target_pos[1] - start_pos[1])**2)
+            r_target_left = np.sqrt((target_pos_left[0] - start_pos[0])**2 +
+                               (target_pos_left[1] - start_pos[1])**2)
 
-            if r >= r_target:
+            r_target_right = np.sqrt((target_pos_right[0] - start_pos[0])**2 +
+                               (target_pos_right[1] - start_pos[1])**2)
+
+            if r >= r_target_left or r >= r_target_right:
+
+                if r_target_left < r_target_right:
+                    r_target = r_target_left
+                else:
+                    r_target = r_target_right
 
                 mt = t_state
                 ep = cursor_pos
@@ -612,7 +656,9 @@ if __name__ == "__main__":
                 cloud = np.random.multivariate_normal(
                     ep_target, [[su[trial]**2, 0], [0, su[trial]**2]], n_points)
 
-                if np.abs(target_angle_left - ep_theta) < np.abs(target_angle_right - ep_theta):
+                ep_theta_deg = ep_theta * 180 / np.pi + 90
+
+                if np.abs(target_angle_left - ep_theta_deg) < np.abs(target_angle_right - ep_theta_deg):
                     resp = "A"
                 else:
                     resp = "B"
@@ -630,6 +676,9 @@ if __name__ == "__main__":
 
             pygame.draw.circle(screen, blue, start_pos, start_radius)
 
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*1.1)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*1.1)
+
             screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
             screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
@@ -639,7 +688,9 @@ if __name__ == "__main__":
 
                 elif fb == "Incorrect":
                     pygame.draw.circle(screen, red, target_pos_left, size_px / 2 + 10, 5)
+
             else:
+
                 if fb == "Correct":
                     pygame.draw.circle(screen, green, target_pos_right, size_px / 2 + 10, 5)
 
@@ -648,22 +699,36 @@ if __name__ == "__main__":
 
             if endpoint_visible[trial]:
                 for i in range(n_points):
-                    pygame.draw.circle(screen, white, cloud[i], cursor_radius)
+                    if fb == "Correct":
+                        pygame.draw.circle(screen, green, cloud[i], cursor_radius)
+                    elif fb == "Incorrect":
+                        pygame.draw.circle(screen, red, cloud[i], cursor_radius)
 
             if t_state > 1000:
+
                 trial_data['condition'].append(condition)
                 trial_data['subject'].append(subject)
                 trial_data['trial'].append(trial)
-                trial_data['target_angle'].append(target_angle[trial])
+                trial_data['target_angle_left'].append(target_angle_left)
+                trial_data['target_angle_right'].append(target_angle_right)
                 trial_data['su'].append(np.round(su[trial], 2))
                 trial_data['rotation'].append(np.round(rotation[trial], 2))
                 trial_data['rt'].append(rt)
                 trial_data['mt'].append(mt)
                 trial_data['ep'].append(np.round(ep_theta, 2))
+                trial_data['cat'].append(cat)
+                trial_data['x'].append(ds.x[trial])
+                trial_data['y'].append(ds.y[trial])
+                trial_data['xt'].append(ds.xt[trial])
+                trial_data['yt'].append(ds.yt[trial])
+                trial_data['resp'].append(resp)
+                trial_data['fb'].append(fb)
+
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 pd.DataFrame(trial_move).to_csv(full_path_move, index=False)
                 t_state = 0
-                state_current = "state_iti"
+                trial += 1
+                state_current = "state_searching_ring"
 
         trial_move['condition'].append(condition)
         trial_move['subject'].append(subject)
