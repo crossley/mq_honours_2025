@@ -542,13 +542,12 @@ if __name__ == "__main__":
                 ep_target = (r_target * np.cos(ep_theta) + start_pos[0],
                              r_target * np.sin(ep_theta) + start_pos[1])
 
-                # NOTE: Consult with Dave about what design he wants
-                # ep_theta_clamp = rotation[trial]
-                ep_theta_clamp = -90.0 * np.pi / 180.0
-                ep_target_clamp = (r_target * np.cos(ep_theta_clamp) +
-                                   start_pos[0],
-                                   r_target * np.sin(ep_theta_clamp) +
-                                   start_pos[1])
+                if rotation[trial] != 0:
+                    ep_theta_clamp = -60.0 * np.pi / 180.0
+                    ep_target_clamp = (r_target * np.cos(ep_theta_clamp) + start_pos[0], r_target * np.sin(ep_theta_clamp) + start_pos[1])
+                else:
+                    ep_theta_clamp = ep_theta
+                    ep_target_clamp = ep_target
 
                 mt = t_state
 
