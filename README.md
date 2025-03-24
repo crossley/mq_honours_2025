@@ -2,9 +2,9 @@
 
 This repo holds code for a variety 2025 honours projects at Macquarie University.
 
-# **Setting Up a Lab Windows Machine to Run These Experiment**
+## **Setting Up a Lab Windows Machine to Run These Experiment**
 
-## **Step 1: Install Python (Version 3.11.8)**
+#### **Step 1: Install Python (Version 3.11.8)**
 
 1. **Download Python 3.11.8:**  
    - Visit: [https://www.python.org/downloads/release/python-3118/](https://www.python.org/downloads/release/python-3118/)  
@@ -12,7 +12,7 @@ This repo holds code for a variety 2025 honours projects at Macquarie University
 
 2. **Install Python:**  
    - Open the downloaded file.  
-   - **IMPORTANT:** **Uncheck** the box that says **“Use admin privileges"”** before clicking **Install Now**.  
+   - **IMPORTANT:** **Uncheck** the box that says **“Use admin privileges”** before clicking **Install Now**.  
    - **IMPORTANT:** **Check** the box that says **“Add Python to PATH”** before clicking **Install Now**.  
    - Wait for installation to complete, then close the installer.
 
@@ -32,14 +32,14 @@ This repo holds code for a variety 2025 honours projects at Macquarie University
 
 ---
 
-## **Step 2: Install Required Python Libraries**
+#### **Step 2: Install Required Python Libraries**
 We will now install the required libraries.
 
 1. **Open Command Prompt**.
 
 2. **Run this command**:
    ```
-   pip install pyserial==3.5 pygame==2.5.2 numpy==1.26.4 pandas==2.2.1 matplotlib==3.8.3
+   pip install pyserial==3.5 pygame==2.5.2 numpy==1.26.4 pandas==2.2.1 matplotlib==3.8.3 seaborn==0.13.2
    ```
 
 3. **Check installation**:
@@ -48,8 +48,8 @@ We will now install the required libraries.
    ```
    Then type:
    ```
-   import serial, pygame, numpy as np, pandas as pd, matplotlib
-   print(serial.__version__, pygame.__version__, np.__version__, pd.__version__, matplotlib.__version__)
+   import serial, pygame, numpy as np, pandas as pd, matplotlib, seaborn
+   print(serial.__version__, pygame.__version__, np.__version__, pd.__version__, matplotlib.__version__, seaborn.__version__)
    ```
    Expected output:
    ```
@@ -63,7 +63,7 @@ We will now install the required libraries.
 
 ---
 
-## **Step 3: Create a GitHub Account (If You Don't Have One)**
+#### **Step 3: Create a GitHub Account (If You Don't Have One)**
 Since we will be working with GitHub, you need an account.
 
 1. **Go to** - [https://github.com](https://github.com).  
@@ -76,7 +76,7 @@ Since we will be working with GitHub, you need an account.
 
 ---
 
-## **Step 4: Install Git**
+#### **Step 4: Install Git**
 Git is required to interact with GitHub.
 
 1. **Download Git for Windows:**  
@@ -97,9 +97,9 @@ Git is required to interact with GitHub.
 
 ---
 
-## **Step 5: Fork and Clone the Experiment Repository**
+#### **Step 5: Fork and Clone the Experiment Repository**
 
-### **5.1 Fork the Repository (Create Your Own Copy on GitHub)**
+###### **5.1 Fork the Repository (Create Your Own Copy on GitHub)**
 
 1. **Go to the main experiment repository**:  
    - [https://github.com/crossley/mq_honours_2025](https://github.com/crossley/mq_honours_2025)  
@@ -107,7 +107,7 @@ Git is required to interact with GitHub.
 2. Click the **Fork** button (top-right corner).  
    - This creates a copy of the repository under **your GitHub account**.
 
-### **5.2 Clone the Repository (Download it to the lab computer)**
+###### **5.2 Clone the Repository (Download it to the lab computer)**
 
 1. **Go to your forked version** at:  
    ```
@@ -139,18 +139,16 @@ Git is required to interact with GitHub.
 
 ---
 
-## **Step 6: Follow My GitHub Account and Let Me Follow You**
+#### **Step 6: Follow My GitHub Account and Let Me Follow You**
 
 Since we will be sharing data via GitHub, make sure we follow each other.
 
 1. **Follow my GitHub account**:  
    - [https://github.com/crossley](https://github.com/crossley)  
 
-2. **Send me a message or email with your GitHub username**, so I can follow you back.  
-
 ---
 
-## **Step 7: Navigate to Your Experiment Folder and Run the Code**
+#### **Step 7: Navigate to Your Experiment Folder and Run the Code**
 1. **Find your experiment folder** inside `mq_honours_2025`:  
    ```
    dir
@@ -166,18 +164,56 @@ Since we will be sharing data via GitHub, make sure we follow each other.
    cd code
    ```
 
-4. **Run the experiment**:  
+4. **Set the subject number**
+
+    - Find the line of code that sets the subject number and
+      set this to a value that you have not used yet. 
+
+    -If you are piloting the experiment and do not intend to
+    use the resulting data for publication, use a silly
+    number:
+
+      ```
+      subject = 999 # use a silly number for piloting
+      ```
+
+    - If you are collecting data for publication, use the
+      next available number (i.e., a number you have not
+      assigned to any previous participants):
+
+      ```
+      subject = 1 # use the next available number for publication
+      ```
+
+5. **Set motion tracking**
+
+    - If you are running an experiment that requires motion
+      tracking, set the `use_liberty` variable to `True`:
+
+      ```
+      use_liberty = True
+      ```
+    - Alternatively, if you are piloting this experiment on
+      a laptop and wish to use your trackpad, set the
+      `use_liberty` variable to `False`:
+
+      ```
+      use_liberty = False
+      ```
+
+6. **Run the experiment**:  
    ```
    python run_exp.py
    ```
 
 ---
 
-## **Step 8: Submit Your Data to GitHub**
+#### **Step 8: Submit Your Data to your GitHub repository**
 
-Once you have collected data, you need to **upload it to GitHub** and submit a pull request so I can review and merge your changes.
-
-### **8.1 Add Your Data Files**
+Once you have collected data, it lives only on the local
+machine where you ran the experiment. To back up your data
+and ultimately share it with me, you need to **push it to
+your GitHub account**. 
 
 1. **Make sure you're inside the repository**:
    ```
@@ -192,7 +228,7 @@ Once you have collected data, you need to **upload it to GitHub** and submit a p
 
 3. **Stage the new data files**:
    ```
-   git add data/*
+   git add <path_to_your_experiment_name>/data/* 
    ```
 
 4. **Commit the changes with a message**:
@@ -200,13 +236,15 @@ Once you have collected data, you need to **upload it to GitHub** and submit a p
    git commit -m "Added experiment data for <your_name>"
    ```
 
-### **8.2 Push Changes to Your Forked Repository**
-1. **Push the changes to your GitHub repository**:
+5. **Push the changes to your GitHub repository**:
    ```
    git push origin main
    ```
 
-### **8.3 Submit a Pull Request**
+#### **8.3 Submit a Pull Request**
+
+You will next need to submit a pull request to merge your
+data into the main repository living under my account.
 
 1. **Go to your GitHub repository** (the forked one under your username).  
 
@@ -222,9 +260,9 @@ I will then review and merge your data into the main repository.
 
 ---
 
-## **Troubleshooting**
+#### **Troubleshooting**
 
-### **If `git push` asks for credentials repeatedly:**
+###### **If `git push` asks for credentials repeatedly:**
 
 1. Set up GitHub authentication:
    ```
@@ -232,19 +270,17 @@ I will then review and merge your data into the main repository.
    ```
    Next time you enter your username and password, Windows should remember it.
 
-### **If `ModuleNotFoundError` appears when running the experiment:**
+###### **If `ModuleNotFoundError` appears when running the experiment:**
 
 - **Reinstall missing libraries:**  
   ```
   pip install -r requirements.txt
   ```
 
-### **If Python is not recognized:**
+###### **If Python is not recognized:**
 
+- **Close and reopen Command Prompt** and try again.
 - **Restart your computer** and try again.
-- **Reinstall Python and check "Add Python to PATH".**
+- **Reinstall Python** and make sure to check the box that says **“Add Python to PATH”**.
 
 ---
-
-## **Congratulations!**
-Your Windows machine is now set up to **run the psychology experiment**, **push your data to GitHub**, and **submit pull requests** to keep the main repository updated.
