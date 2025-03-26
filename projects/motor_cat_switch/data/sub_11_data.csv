@@ -1,0 +1,7 @@
+condition,subject,trial,sub_task,cat,x,y,xt,yt,resp,rt,fb
+congruent_pinky_thumb,11,0,2,113,18.34,48.84,0.02,0.77,112,396,Incorrect
+congruent_pinky_thumb,11,1,1,109,71.16,38.74,0.08,0.61,99,240,Incorrect
+congruent_pinky_thumb,11,2,1,109,79.11,54.5,0.09,0.86,109,228,Correct
+congruent_pinky_thumb,11,3,2,112,42.79,25.88,0.05,0.41,113,271,Incorrect
+congruent_pinky_thumb,11,4,2,112,78.58,53.5,0.09,0.84,112,271,Correct
+congruent_pinky_thumb,11,5,2,112,71.54,49.61,0.08,0.78,113,380,Incorrect
