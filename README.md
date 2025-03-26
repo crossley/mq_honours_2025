@@ -169,9 +169,9 @@ Since we will be sharing data via GitHub, make sure we follow each other.
     - Find the line of code that sets the subject number and
       set this to a value that you have not used yet. 
 
-    -If you are piloting the experiment and do not intend to
-    use the resulting data for publication, use a silly
-    number:
+    - If you are piloting the experiment and do not intend
+      to use the resulting data for publication, use a silly
+      number:
 
       ```
       subject = 999 # use a silly number for piloting
@@ -187,12 +187,17 @@ Since we will be sharing data via GitHub, make sure we follow each other.
 
 5. **Set motion tracking**
 
-    - If you are running an experiment that requires motion
-      tracking, set the `use_liberty` variable to `True`:
+    - If your experiment uses motion tracking, switch on the
+      Liberty tracker and wait until the blinking red light
+      becomes a steady green light.
+
+    - In `run_exp.py` set the `use_liberty` variable to
+      `True`:
 
       ```
       use_liberty = True
       ```
+
     - Alternatively, if you are piloting this experiment on
       a laptop and wish to use your trackpad, set the
       `use_liberty` variable to `False`:
@@ -202,9 +207,22 @@ Since we will be sharing data via GitHub, make sure we follow each other.
       ```
 
 6. **Run the experiment**:  
+
+   - From the command prompt type:
+
    ```
    python run_exp.py
    ```
+
+7. **Follow the on-screen instructions** to complete the experiment.
+
+   – If you are running a motion tracking experiment, you
+   will first be asked to place the sensor at several
+   calibration points and press the spacebar after each one.
+   Once calibration is complete, the experiment will begin.
+   You may need to manually adjust the aluminium apparatus
+   to ensure the sensor is properly calibrated and aligned
+   with the display cursor.
 
 ---
 
