@@ -4,7 +4,7 @@ from util_func import *
 if __name__ == "__main__":
 
     # set subject number
-    subject = 11
+    subject = 12
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f_name)
@@ -177,7 +177,7 @@ if __name__ == "__main__":
                     pygame.quit()
                 else:
                     resp = event.key
-# state initialisation
+    # state initialisation
         if state_current == "state_init":
             time_state += clock_state.tick()
 
@@ -187,14 +187,13 @@ if __name__ == "__main__":
             screen.fill(black)
             screen.blit(text, text_rect)
 
-	# made sure that initialisation went into set subtask
             if resp == pygame.K_SPACE:
                 time_state = 0
                 resp = -1
                 state_current = "state_setsub"
                 print(state_current)
 
-# finished state
+    # state finished
         if state_current == "state_finished":
             time_state += clock_state.tick()
             text = font.render("You finished! Thank you for being awesome!", True,
@@ -217,7 +216,7 @@ if __name__ == "__main__":
             state_current = "state_cue"
             print(state_current)
 
-# cue image
+    # cue image
         if state_current == "state_cue":
             time_state += clock_state.tick()
             screen.fill(black)
@@ -239,8 +238,8 @@ if __name__ == "__main__":
                 resp = -1
                 rt = -1
                 time_state = 0
-		# popped this up there ^^
-#               sub_task = np.random.choice([1, 2])
+#                popped this up there ^^
+#                sub_task = np.random.choice([1, 2])
                 trial += 1
                 if trial == n_trial - 1:
                     state_current = "state_finished"
@@ -250,7 +249,7 @@ if __name__ == "__main__":
                     cat = ds['cat'].iloc[trial]
                     state_current = "state_iti"
 
-# intertrial interval
+    # inter trial interval (i.e. fixation cross)
         if state_current == "state_iti":
             time_state += clock_state.tick()
             screen.fill(black)
@@ -258,6 +257,7 @@ if __name__ == "__main__":
                              (center_x, center_y + 10), 4)
             pygame.draw.line(screen, white, (center_x - 10, center_y),
                              (center_x + 10, center_y), 4)
+
             # originally from cue
             if time_state > 2000:
                 time_state = 0
@@ -265,7 +265,7 @@ if __name__ == "__main__":
                 state_current = "state_stim"
                 print(state_current)
 
-# stimuli state
+    # stimulus state
         if state_current == "state_stim":
             time_state += clock_state.tick()
             screen.fill(black)
