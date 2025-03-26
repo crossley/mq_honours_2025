@@ -166,6 +166,9 @@ Since we will be sharing data via GitHub, make sure we follow each other.
 
 4. **Set the subject number**
 
+    - Open the `run_exp.py` file in a plain text editor. On
+      windows, you can use Notepad or Notepad++.
+
     - Find the line of code that sets the subject number and
       set this to a value that you have not used yet. 
 
