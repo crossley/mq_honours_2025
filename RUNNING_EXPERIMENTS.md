@@ -67,6 +67,10 @@ If you are piloting or using a trackpad instead of the tracker, set:
 
 ## Step 4: Run the Experiment
 
+**Do not double click** or otherwise use the mouse to run
+any Python scripts. It can create intermediate file that are
+annoying to clean up and track with git. 
+
 In Command Prompt, run the experiment:
 ```
 python run_exp.py

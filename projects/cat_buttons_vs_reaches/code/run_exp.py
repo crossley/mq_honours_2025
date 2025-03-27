@@ -3,7 +3,7 @@ from util_func import *
 
 if __name__ == "__main__":
 
-    subject = 109
+    subject = 1000
     dir_data = "../data"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
     full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
@@ -19,32 +19,31 @@ if __name__ == "__main__":
     condition_4 = {"cat": "II", "resp": "reach"}
 
     condition_list = [condition_1, condition_2, condition_3, condition_4]
-
     condition = condition_list[(subject - 1) % len(condition_list)]
-    print((subject - 1) % len(condition_list))
-    print(condition)
+
+    print("Subject: ", subject, "Condition: ", condition)
 
     ds = make_stim_cats(condition["cat"])
     ds["cat"] = ds["cat"].map({1: "A", 2: "B"})
     print(ds)
 
-    # plot the stimuli coloured by label
-    fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
-    sns.scatterplot(data=ds,
-                    x="x",
-                    y="y",
-                    style="cat",
-                    alpha=0.5,
-                    ax=ax[0, 0])
-    sns.scatterplot(data=ds,
-                    x="xt",
-                    y="yt",
-                    style="cat",
-                    alpha=0.5,
-                    ax=ax[0, 1])
-    ax[0, 0].plot([0, 100], [0, 100], 'k--')
-    ax[0, 1].plot([0, 5], [0, np.pi / 2], 'k--')
-    plt.show()
+#     # plot the stimuli coloured by label
+#     fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
+#     sns.scatterplot(data=ds,
+#                     x="x",
+#                     y="y",
+#                     style="cat",
+#                     alpha=0.5,
+#                     ax=ax[0, 0])
+#     sns.scatterplot(data=ds,
+#                     x="xt",
+#                     y="yt",
+#                     style="cat",
+#                     alpha=0.5,
+#                     ax=ax[0, 1])
+#     ax[0, 0].plot([0, 100], [0, 100], 'k--')
+#     ax[0, 1].plot([0, 5], [0, np.pi / 2], 'k--')
+#     plt.show()
 
     # plot_stim_space_examples(ds)
 
