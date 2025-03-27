@@ -109,3 +109,88 @@ To share your data with your supervisor, submit a pull request.
 5. Add a short description (for example, "Added experiment data") and click "Create Pull Request".
 
 Your supervisor will review and merge your data into the main repository.
+
+Great — here’s a lightweight, plain-Markdown troubleshooting guide you can include at the bottom of `GIT_WORKFLOW.md` or link to separately if you prefer.
+
+---
+
+## Troubleshooting Common Git Issues
+
+If something goes wrong while using Git, here are a few common problems and how to fix them.
+
+---
+
+### Problem: Git rejects your push
+
+You might see:
+```
+error: failed to push some refs to 'https://github.com/YOUR-USERNAME/repo.git'
+hint: Updates were rejected because the remote contains work that you do
+not have locally.
+```
+
+**What to do:**
+
+1. Pull the latest changes before pushing:
+   ```
+   git pull
+   ```
+
+2. If there are no conflicts, try pushing again:
+   ```
+   git push origin main
+   ```
+
+---
+
+### Problem: You have uncommitted changes and can't pull
+
+You might see:
+```
+error: Your local changes would be overwritten by merge
+```
+
+**What to do:**
+
+1. Save your work by committing your changes:
+   ```
+   git add .
+   git commit -m "Saving local changes before pulling"
+   ```
+
+2. Then pull and push:
+   ```
+   git pull
+   git push
+   ```
+
+---
+
+### Problem: Git asks for your username and password every time
+
+This can happen on some Windows machines. To fix:
+
+1. Enable Git credential helper:
+   ```
+   git config --global credential.helper wincred
+   ```
+
+2. Next time you enter your username and password, Git will remember it.
+
+---
+
+### Still stuck?
+
+If you're unsure what's going on, it's always safe to:
+
+- **Copy your data files to a safe folder**
+- **Delete your local repository folder**
+- **Re-clone your fork** and re-add your data
+- Then:
+  ```
+  git add .
+  git commit -m "Re-added data"
+  git push
+  ```
+
+When in doubt, ask your supervisor for help.
