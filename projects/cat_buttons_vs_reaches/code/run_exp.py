@@ -29,7 +29,6 @@ if __name__ == "__main__":
     print(ds)
 
     # plot the stimuli coloured by label
-    import seaborn as sns
     fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
     sns.scatterplot(data=ds,
                     x="x",
@@ -168,6 +167,8 @@ if __name__ == "__main__":
     # grating size
     size_cm = 5
     size_px = int(size_cm * px_per_cm)
+
+    size_px_bg = 0.75
 
     # set full screen
     info = pygame.display.Info()
@@ -484,7 +485,7 @@ if __name__ == "__main__":
         if state_current == "state_stim":
             t_state += clock_state.tick()
             screen.fill(black)
-            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*1.1)
+            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*size_px_bg)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
             screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
@@ -511,7 +512,7 @@ if __name__ == "__main__":
             t_state += clock_state.tick()
 
             screen.fill(black)
-            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*1.1)
+            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*size_px_bg)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
             screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
@@ -624,8 +625,8 @@ if __name__ == "__main__":
 
             pygame.draw.circle(screen, blue, start_pos, start_radius)
 
-            pygame.draw.circle(screen, grey, target_pos_left, size_px*1.1)
-            pygame.draw.circle(screen, grey, target_pos_right, size_px*1.1)
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*size_px_bg)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*size_px_bg)
 
             screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
             screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
@@ -676,8 +677,8 @@ if __name__ == "__main__":
 
             pygame.draw.circle(screen, blue, start_pos, start_radius)
 
-            pygame.draw.circle(screen, grey, target_pos_left, size_px*1.1)
-            pygame.draw.circle(screen, grey, target_pos_right, size_px*1.1)
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*size_px_bg)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*size_px_bg)
 
             screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
             screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
