@@ -13,16 +13,16 @@ if __name__ == "__main__":
         print(f"File {full_path} already exists. Aborting.")
         sys.exit()
 
+for subject in [1, 2, 3, 4, 5, 6, 7, 8]:
     condition_1 = {"cat": "RB", "resp": "button"}
     condition_2 = {"cat": "RB", "resp": "reach"}
     condition_3 = {"cat": "II", "resp": "button"}
     condition_4 = {"cat": "II", "resp": "reach"}
 
     condition_list = [condition_1, condition_2, condition_3, condition_4]
-
     condition = condition_list[(subject - 1) % len(condition_list)]
-    print((subject - 1) % len(condition_list))
-    print(condition)
+
+    print("Subject: ", subject, "Condition: ", condition)
 
     ds = make_stim_cats(condition["cat"])
     ds["cat"] = ds["cat"].map({1: "A", 2: "B"})
