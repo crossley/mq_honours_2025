@@ -4,7 +4,7 @@ from util_func import *
 if __name__ == "__main__":
 
     # set subject number
-    subject = 11
+    subject = 999
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f_name)
@@ -177,7 +177,7 @@ if __name__ == "__main__":
                     pygame.quit()
                 else:
                     resp = event.key
-# state initialisation
+
         if state_current == "state_init":
             time_state += clock_state.tick()
 
@@ -187,14 +187,10 @@ if __name__ == "__main__":
             screen.fill(black)
             screen.blit(text, text_rect)
 
-	# made sure that initialisation went into set subtask
             if resp == pygame.K_SPACE:
                 time_state = 0
-                resp = -1
-                state_current = "state_setsub"
-                print(state_current)
+                state_current = "state_iti"
 
-# finished state
         if state_current == "state_finished":
             time_state += clock_state.tick()
             text = font.render("You finished! Thank you for being awesome!", True,
@@ -203,54 +199,6 @@ if __name__ == "__main__":
             screen.fill(black)
             screen.blit(text, text_rect)
 
-    # trying to set subtask before cue comes up
-    # when I didn't have this out here, the response keys would sometimes misalign
-    # with the subtask e.g. cue the for q/p could lead to a stim that would only take
-    # a response from keys c/m or it would be fine
-    # don't know if this is the right way to go about it but it seemed like, when I ran
-    # through about 25 trials, this problem didn't come up when it was coming up far earlier
-    # before I popped this snippet up here. Could be wrong though, enjoy the monkey key mashing
-        if state_current == "state_setsub":
-            time_state +- clock_state.tick()
-            screen.fill(black)
-            sub_task = np.random.choice([1, 2])
-            state_current = "state_cue"
-            print(state_current)
-
-# cue image
-        if state_current == "state_cue":
-            time_state += clock_state.tick()
-            screen.fill(black)
-
-            if sub_task == 1:
-                cue_img = condition.loc[(condition["context"] == "S"),
-                                        'cue_img'].values[0]
-            elif sub_task == 2:
-                cue_img = condition.loc[(condition["context"] == "D"),
-                                        'cue_img'].values[0]
-
-            # cue_img = pygame.transform.scale_by(cue_img, 0.5)
-
-            screen.blit(cue_img, (center_x - cue_img.get_width() / 2,
-                                  center_y - cue_img.get_height() / 2))
-
-            # originally from iti
-            if time_state > 1000:
-                resp = -1
-                rt = -1
-                time_state = 0
-		# popped this up there ^^
-#               sub_task = np.random.choice([1, 2])
-                trial += 1
-                if trial == n_trial - 1:
-                    state_current = "state_finished"
-                else:
-                    sf = ds['xt'].iloc[trial] * (px_per_cm**-1)
-                    ori = ds['yt'].iloc[trial]
-                    cat = ds['cat'].iloc[trial]
-                    state_current = "state_iti"
-
-# intertrial interval
         if state_current == "state_iti":
             time_state += clock_state.tick()
             screen.fill(black)
@@ -258,14 +206,36 @@ if __name__ == "__main__":
                              (center_x, center_y + 10), 4)
             pygame.draw.line(screen, white, (center_x - 10, center_y),
                              (center_x + 10, center_y), 4)
-            # originally from cue
+            if time_state > 1000:
+                resp = -1
+                rt = -1
+                time_state = 0
+                trial += 1
+                if trial == n_trial - 1:
+                    state_current = "state_finished"
+                else:
+                    sf = ds['xt'].iloc[trial] * (px_per_cm**-1)
+                    ori = ds['yt'].iloc[trial]
+                    cat = ds['cat'].iloc[trial]
+                    sub_task = np.random.choice([1, 2])
+                    state_current = "state_cue"
+
+        if state_current == "state_cue":
+            time_state += clock_state.tick()
+            screen.fill(black)
+
+            if sub_task == 1:
+                cue_img = condition.loc[(condition["context"] == "S"), 'cue_img'].values[0]
+            elif sub_task == 2:
+                cue_img = condition.loc[(condition["context"] == "D"), 'cue_img'].values[0]
+
+            screen.blit(cue_img, (center_x - cue_img.get_width() / 2, center_y - cue_img.get_height() / 2))
+
             if time_state > 2000:
                 time_state = 0
                 resp = -1
                 state_current = "state_stim"
-                print(state_current)
 
-# stimuli state
         if state_current == "state_stim":
             time_state += clock_state.tick()
             screen.fill(black)
@@ -287,12 +257,10 @@ if __name__ == "__main__":
                         (center_x - size_px / 2, center_y - size_px / 2))
 
             if sub_task == 1:
-                resp_key_context = condition.loc[condition["context"] == "S",
-                                                 "resp_key"]
+                resp_key_context = condition.loc[condition["context"] == "S", "resp_key"]
 
             elif sub_task == 2:
-                resp_key_context = condition.loc[condition["context"] == "D",
-                                                 "resp_key"]
+                resp_key_context = condition.loc[condition["context"] == "D", "resp_key"]
 
             if np.isin(resp, resp_key_context):
                 rt = time_state
@@ -300,20 +268,12 @@ if __name__ == "__main__":
 
                 if sub_task == 1:
 
-                    print("sub_task 1")
-                    #print(condition)
-                    #print()
-
                     resp_corr = condition.loc[
                         (condition["context"] == "S")
                         & (condition["stim_region"] == ["A", "B"][cat - 1][0]),
                         'resp_key'].values[0]
 
                 elif sub_task == 2:
-
-                    print("sub_task 2")
-                    #print(condition)
-                    #print()
 
                     resp_corr = condition.loc[
                         (condition["context"] == "D")
@@ -353,6 +313,6 @@ if __name__ == "__main__":
                 trial_data['fb'].append(fb)
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 time_state = 0
-                state_current = "state_setsub"
+                state_current = "state_iti"
 
         pygame.display.flip()
