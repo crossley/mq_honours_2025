@@ -4,7 +4,7 @@ from util_func import *
 if __name__ == "__main__":
 
     # set subject number
-    subject = 3
+    subject = 999
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f_name)
@@ -189,7 +189,6 @@ if __name__ == "__main__":
 
             if resp == pygame.K_SPACE:
                 time_state = 0
-                resp = -1
                 state_current = "state_iti"
 
         if state_current == "state_finished":
@@ -211,7 +210,6 @@ if __name__ == "__main__":
                 resp = -1
                 rt = -1
                 time_state = 0
-                sub_task = np.random.choice([1, 2])
                 trial += 1
                 if trial == n_trial - 1:
                     state_current = "state_finished"
@@ -219,6 +217,7 @@ if __name__ == "__main__":
                     sf = ds['xt'].iloc[trial] * (px_per_cm**-1)
                     ori = ds['yt'].iloc[trial]
                     cat = ds['cat'].iloc[trial]
+                    sub_task = np.random.choice([1, 2])
                     state_current = "state_cue"
 
         if state_current == "state_cue":
@@ -226,16 +225,11 @@ if __name__ == "__main__":
             screen.fill(black)
 
             if sub_task == 1:
-                cue_img = condition.loc[(condition["context"] == "S"),
-                                        'cue_img'].values[0]
+                cue_img = condition.loc[(condition["context"] == "S"), 'cue_img'].values[0]
             elif sub_task == 2:
-                cue_img = condition.loc[(condition["context"] == "D"),
-                                        'cue_img'].values[0]
+                cue_img = condition.loc[(condition["context"] == "D"), 'cue_img'].values[0]
 
-            # cue_img = pygame.transform.scale_by(cue_img, 0.5)
-
-            screen.blit(cue_img, (center_x - cue_img.get_width() / 2,
-                                  center_y - cue_img.get_height() / 2))
+            screen.blit(cue_img, (center_x - cue_img.get_width() / 2, center_y - cue_img.get_height() / 2))
 
             if time_state > 2000:
                 time_state = 0
@@ -263,12 +257,10 @@ if __name__ == "__main__":
                         (center_x - size_px / 2, center_y - size_px / 2))
 
             if sub_task == 1:
-                resp_key_context = condition.loc[condition["context"] == "S",
-                                                 "resp_key"]
+                resp_key_context = condition.loc[condition["context"] == "S", "resp_key"]
 
             elif sub_task == 2:
-                resp_key_context = condition.loc[condition["context"] == "D",
-                                                 "resp_key"]
+                resp_key_context = condition.loc[condition["context"] == "D", "resp_key"]
 
             if np.isin(resp, resp_key_context):
                 rt = time_state
@@ -276,20 +268,12 @@ if __name__ == "__main__":
 
                 if sub_task == 1:
 
-                    print("sub_task 1")
-                    print(condition)
-                    print()
-
                     resp_corr = condition.loc[
                         (condition["context"] == "S")
                         & (condition["stim_region"] == ["A", "B"][cat - 1][0]),
                         'resp_key'].values[0]
 
                 elif sub_task == 2:
-
-                    print("sub_task 2")
-                    print(condition)
-                    print()
 
                     resp_corr = condition.loc[
                         (condition["context"] == "D")
