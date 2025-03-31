@@ -4,7 +4,7 @@ from util_func import *
 if __name__ == "__main__":
 
     # set subject number
-    subject = 1001
+    subject = 1002
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f_name)
