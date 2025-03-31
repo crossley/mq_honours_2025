@@ -434,12 +434,12 @@ if __name__ == "__main__":
 
         target_distance = 10
 
-        target_angle_left = 45
+        target_angle_left = -45
         target_pos_x = -target_distance * px_per_cm * np.cos(-(target_angle_left + 90) * np.pi / 180.0)
         target_pos_y = target_distance * px_per_cm * np.sin(-(target_angle_left + 90) * np.pi / 180.0)
         target_pos_left = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
 
-        target_angle_right = -45
+        target_angle_right = 45
         target_pos_x = -target_distance * px_per_cm * np.cos(-(target_angle_right + 90) * np.pi / 180.0)
         target_pos_y =  target_distance * px_per_cm * np.sin(-(target_angle_right + 90) * np.pi / 180.0)
         target_pos_right = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
@@ -484,10 +484,13 @@ if __name__ == "__main__":
         if state_current == "state_stim":
             t_state += clock_state.tick()
             screen.fill(black)
-            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*size_px_bg)
+
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*size_px_bg)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*size_px_bg)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
-            screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
+            screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
+            screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
             if (resp == pygame.K_d) or (resp == pygame.K_k):
                 rt = t_state
@@ -495,10 +498,10 @@ if __name__ == "__main__":
 
                 if resp == pygame.K_d:
                     resp = "A"
+                    fbxy = target_pos_left
                 elif resp == pygame.K_k:
                     resp = "B"
-
-                print(cat, resp)
+                    fbxy = target_pos_right
 
                 if cat == resp:
                     fb = "Correct"
@@ -511,18 +514,19 @@ if __name__ == "__main__":
             t_state += clock_state.tick()
 
             screen.fill(black)
-            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*size_px_bg)
+
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*size_px_bg)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*size_px_bg)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
-            screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
+            screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
+            screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
             if fb == "Correct":
-                pygame.draw.circle(screen, green, (center_x, center_y),
-                                   size_px / 2 + 10, 5)
+                pygame.draw.circle(screen, green, fbxy, size_px / 2 + 10, 5)
 
             elif fb == "Incorrect":
-                pygame.draw.circle(screen, red, (center_x, center_y),
-                                   size_px / 2 + 10, 5)
+                pygame.draw.circle(screen, red, fbxy, size_px / 2 + 10, 5)
 
             if t_state > 1000:
                 trial_data['condition'].append(condition)
