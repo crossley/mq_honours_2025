@@ -3,7 +3,7 @@ from util_func import *
 
 if __name__ == "__main__":
 
-    subject = 1000
+    subject = 2
     dir_data = "../data"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
     full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # plot_stim_space_examples(ds)
 
-    use_liberty = False
+    use_liberty = True
 
     if condition["resp"] == "button":
         use_liberty = False
