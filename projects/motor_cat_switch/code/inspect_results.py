@@ -16,10 +16,6 @@ for f in os.listdir(dir_data):
 
 d = pd.concat(d_rec)
 
-# TODO: Don't know how it happened that trials starts at -2.
-# Fix it here.
-d["trial"] = d["trial"] + 3
-
 print(d.groupby(["condition"])["subject"].unique())
 print(d.groupby(["condition"])["subject"].nunique())
 
@@ -30,36 +26,45 @@ d["sub_task"] = d["sub_task"].astype("category")
 
 # recode cat level names
 d["cat"] = d["cat"].cat.rename_categories({
-    107: "L1",
-    97: "R1",
-    108: "L2",
-    115: "R2"
+    102: "L1",  # 'f'
+    106: "R1",  # 'j'
+    100: "L2",  # 'd'
+    107: "R2",  # 'k'
+    99:  "L3",  # 'c'
+    109: "R3",  # 'm'
+    113: "L4",  # 'q'
+    112: "R4",  # 'p'
 })
 
+# TODO: Needs the other two conditions
 fig, ax = plt.subplots(2, 2, squeeze=False, figsize=(10, 10))
-sns.scatterplot(data=d[(d["condition"] == "4F4K_congruent")
-                       & (d["sub_task"] == 1)],
+dd = d[(d["condition"] == "incongruent_pointer_middle") & (d["sub_task"] == 1)]
+dd["cat"] = dd["cat"].cat.remove_unused_categories()
+sns.scatterplot(data=dd,
                 x="x",
                 y="y",
                 hue="cat",
                 style="cat",
                 ax=ax[0, 0])
-sns.scatterplot(data=d[(d["condition"] == "4F4K_congruent")
-                       & (d["sub_task"] == 2)],
+dd = d[(d["condition"] == "incongruent_pointer_middle") & (d["sub_task"] == 2)]
+dd["cat"] = dd["cat"].cat.remove_unused_categories()
+sns.scatterplot(data=dd,
                 x="x",
                 y="y",
                 hue="cat",
                 style="cat",
                 ax=ax[0, 1])
-sns.scatterplot(data=d[(d["condition"] == "4F4K_incongruent")
-                       & (d["sub_task"] == 1)],
+dd = d[(d["condition"] == "congruent_pinky_thumb") & (d["sub_task"] == 1)]
+dd["cat"] = dd["cat"].cat.remove_unused_categories()
+sns.scatterplot(data=dd,
                 x="x",
                 y="y",
                 hue="cat",
                 style="cat",
                 ax=ax[1, 0])
-sns.scatterplot(data=d[(d["condition"] == "4F4K_incongruent")
-                       & (d["sub_task"] == 2)],
+dd = d[(d["condition"] == "congruent_pinky_thumb") & (d["sub_task"] == 2)]
+dd["cat"] = dd["cat"].cat.remove_unused_categories()
+sns.scatterplot(data=dd,
                 x="x",
                 y="y",
                 hue="cat",
@@ -69,10 +74,10 @@ sns.move_legend(ax[0, 0], "upper left")
 sns.move_legend(ax[0, 1], "upper left")
 sns.move_legend(ax[1, 0], "upper left")
 sns.move_legend(ax[0, 1], "upper left")
-ax[0, 0].set_title("4F4K_congruent_sub_task_1")
-ax[0, 1].set_title("4F4K_congruent_sub_task_2")
-ax[1, 0].set_title("4F4K_incongruent_sub_task_1")
-ax[1, 1].set_title("4F4K_incongruent_sub_task_2")
+ax[0, 0].set_title("incongruent_pointer_middle")
+ax[0, 1].set_title("incongruent_pointer_middle")
+ax[1, 0].set_title("congruent_pinky_thumb")
+ax[1, 1].set_title("congruent_pinky_thumb")
 plt.savefig("../figures/fig_categories_stim_space.png")
 plt.close()
 

@@ -77,7 +77,7 @@ dir_data = "../data/"
 
 d_rec = []
 
-for s in range(13, 40):
+for s in range(999, 1001):
 
     f_trl = "sub_{}_data.csv".format(s)
     f_mv = "sub_{}_data_move.csv".format(s)
@@ -125,30 +125,29 @@ d.groupby(["condition"])["subject"].nunique()
 
 d.sort_values(["condition", "subject", "trial", "t"], inplace=True)
 
-# for s in d["subject"].unique():
-#     fig, ax = plt.subplots(1, 1, squeeze=False)
-#     ax[0, 0].plot(d[d["subject"] == s]["su"])
-#     ax[0, 0].set_title(f"Subject {s}")
-#     plt.show()
+for s in d["subject"].unique():
+    ds = d[d["subject"] == s]
+    fig, ax = plt.subplots(3, 1, squeeze=False)
+    sns.scatterplot(data=ds, x="trial", y="rotation", hue="condition", ax=ax[0, 0])
+    sns.scatterplot(data=ds, x="trial", y="su", hue="condition", ax=ax[1, 0])
+    sns.scatterplot(data=ds, x="trial", y="imv", hue="condition", ax=ax[2, 0])
+    plt.show()
+
 
 # high low
-# 13, 15, 17, 25, 31, 35
+# ...
 
 # low high
-# 19, 21, 23, 27, 29, 33, 37, 39
+# ...
 
-d.loc[(d["condition"] == "blocked")
-      & np.isin(d["subject"], [13, 15, 17, 25, 31, 35]),
-      "condition"] = "Blocked - High low"
-d.loc[(d["condition"] == "blocked")
-      & np.isin(d["subject"], [19, 21, 23, 27, 29, 33, 37, 39]),
-      "condition"] = "Blocked - Low High"
+# d.loc[(d["condition"] == "blocked")
+#       & np.isin(d["subject"], [13, 15, 17, 25, 31, 35]),
+#       "condition"] = "Blocked - High low"
+# d.loc[(d["condition"] == "blocked")
+#       & np.isin(d["subject"], [19, 21, 23, 27, 29, 33, 37, 39]),
+#       "condition"] = "Blocked - Low High"
 
 d.groupby(["condition"])["subject"].unique()
-
-# NOTE: because of bug in experiment (15 deg rotation
-# applied twice)
-d["rotation"] = d["rotation"] * 2
 
 d.groupby(["condition", "subject"])["trial"].nunique()
 
