@@ -19,32 +19,32 @@ for file in os.listdir(dir_data):
         d["phase"] = ["Learn"] * 300 + ["Intervention"] * 300 + ["Test"] * 299
         d_rec.append(d)
 
-#        fig, ax = plt.subplots(1, 4, squeeze=False, figsize=(12, 6))
-#        sns.scatterplot(data=d[d["phase"] == "Learn"],
-#                        x="x",
-#                        y="y",
-#                        hue="cat",
-#                        ax=ax[0, 0])
-#        sns.scatterplot(data=d[d["phase"] == "Intervention"],
-#                        x="x",
-#                        y="y",
-#                        hue="cat",
-#                        ax=ax[0, 1])
-#        sns.scatterplot(data=d[d["phase"] == "Test"],
-#                        x="x",
-#                        y="y",
-#                        hue="cat",
-#                        ax=ax[0, 2])
-#        sns.lineplot(data=d.groupby(["phase", "block"])[["acc"]].mean(),
-#                     x="block",
-#                     y="acc",
-#                     hue="phase",
-#                     ax=ax[0, 3])
-#        ax[0, 0].set_title(d.subject[0])
-#        ax[0, 1].set_title(d.experiment[0])
-#        ax[0, 2].set_title(d.condition[0])
-#        plt.tight_layout()
-#        plt.show()
+        fig, ax = plt.subplots(1, 4, squeeze=False, figsize=(12, 6))
+        sns.scatterplot(data=d[d["phase"] == "Learn"],
+                        x="x",
+                        y="y",
+                        hue="cat",
+                        ax=ax[0, 0])
+        sns.scatterplot(data=d[d["phase"] == "Intervention"],
+                        x="x",
+                        y="y",
+                        hue="cat",
+                        ax=ax[0, 1])
+        sns.scatterplot(data=d[d["phase"] == "Test"],
+                        x="x",
+                        y="y",
+                        hue="cat",
+                        ax=ax[0, 2])
+        sns.lineplot(data=d.groupby(["phase", "block"])[["acc"]].mean(),
+                     x="block",
+                     y="acc",
+                     hue="phase",
+                     ax=ax[0, 3])
+        ax[0, 0].set_title(d.subject[0])
+        ax[0, 1].set_title(d.experiment[0])
+        ax[0, 2].set_title(d.condition[0])
+        plt.tight_layout()
+        plt.show()
 
 d = pd.concat(d_rec, ignore_index=True)
 
