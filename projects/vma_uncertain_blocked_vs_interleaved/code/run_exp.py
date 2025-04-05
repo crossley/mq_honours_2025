@@ -444,8 +444,10 @@ if __name__ == "__main__":
             t_state += clock_state.tick()
             screen.fill(black)
             if t_state > 1000:
-                resp = -1
                 rt = -1
+                mt = -1
+                ep = -1
+                resp = -1
                 t_state = 0
                 trial += 1
                 if trial == n_trial:
