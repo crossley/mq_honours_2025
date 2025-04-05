@@ -3,7 +3,7 @@ from util_func import *
 
 if __name__ == "__main__":
 
-    subject = 2
+    subject = 999999
     dir_data = "../data"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
     full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
@@ -24,8 +24,7 @@ if __name__ == "__main__":
     print("Subject: ", subject, "Condition: ", condition)
 
     ds = make_stim_cats(condition["cat"])
-    ds["cat"] = ds["cat"].map({1: "A", 2: "B"})
-    print(ds)
+    ds["cat"] = ds["cat"].map({1: "Left", 2: "Right"})
 
 #     # plot the stimuli coloured by label
 #     fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
@@ -471,8 +470,7 @@ if __name__ == "__main__":
                 resp = -1
                 rt = -1
                 t_state = 0
-                trial += 1
-                if trial == n_trial - 1:
+                if trial == n_trial:
                     state_current = "state_finished"
                 else:
                     sf = ds['xt'].iloc[trial] * (px_per_cm**-1)
@@ -497,10 +495,10 @@ if __name__ == "__main__":
                 t_state = 0
 
                 if resp == pygame.K_d:
-                    resp = "A"
+                    resp = "Left"
                     fbxy = target_pos_left
                 elif resp == pygame.K_k:
-                    resp = "B"
+                    resp = "Right"
                     fbxy = target_pos_right
 
                 if cat == resp:
@@ -548,12 +546,13 @@ if __name__ == "__main__":
                 trial_data['fb'].append(fb)
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 t_state = 0
+                trial += 1
                 state_current = "state_iti"
 
         if state_current == "state_searching_ring":
             t_state += clock_state.tick()
 
-            if trial == n_trial - 1:
+            if trial == n_trial:
                 state_current = "state_finished"
 
             else:
@@ -663,9 +662,9 @@ if __name__ == "__main__":
                 ep_theta_deg = ep_theta * 180 / np.pi + 90
 
                 if np.abs(target_angle_left - ep_theta_deg) < np.abs(target_angle_right - ep_theta_deg):
-                    resp = "A"
+                    resp = "Left"
                 else:
-                    resp = "B"
+                    resp = "Right"
 
                 if cat == resp:
                     fb = "Correct"
@@ -686,7 +685,7 @@ if __name__ == "__main__":
             screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
             screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
-            if resp == "A":
+            if resp == "Left":
                 if fb == "Correct":
                     pygame.draw.circle(screen, green, target_pos_left, size_px / 2 + 10, 5)
 
@@ -713,12 +712,6 @@ if __name__ == "__main__":
                 trial_data['condition'].append(condition)
                 trial_data['subject'].append(subject)
                 trial_data['trial'].append(trial)
-                trial_data['target_angle_left'].append(target_angle_left)
-                trial_data['target_angle_right'].append(target_angle_right)
-                trial_data['su'].append(np.round(su[trial], 2))
-                trial_data['rotation'].append(np.round(rotation[trial], 2))
-                trial_data['rt'].append(rt)
-                trial_data['mt'].append(mt)
                 trial_data['ep'].append(np.round(ep_theta, 2))
                 trial_data['cat'].append(cat)
                 trial_data['x'].append(ds.x[trial])
@@ -727,7 +720,12 @@ if __name__ == "__main__":
                 trial_data['yt'].append(ds.yt[trial])
                 trial_data['resp'].append(resp)
                 trial_data['fb'].append(fb)
-
+                trial_data['rt'].append(rt)
+                trial_data['mt'].append(mt)
+                trial_data['target_angle_left'].append(target_angle_left)
+                trial_data['target_angle_right'].append(target_angle_right)
+                trial_data['su'].append(np.round(su[trial], 2))
+                trial_data['rotation'].append(np.round(rotation[trial], 2))
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 pd.DataFrame(trial_move).to_csv(full_path_move, index=False)
                 t_state = 0
