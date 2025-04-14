@@ -149,9 +149,6 @@ if __name__ == "__main__":
     rotation[30:130] = 15 * np.pi / 180
     rotation[230:330] = 15 * np.pi / 180
 
-    # TODO: don't forget to delete
-    rotation[2:4] = 1
-
     endpoint_visible = np.ones(n_trial)
     endpoint_visible[130:180] = 0
     endpoint_visible[330:380] = 0
