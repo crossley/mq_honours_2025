@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
-    subject = 1
+    subject = 1101
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         print(f"File {f_name} already exists. Aborting.")
         sys.exit()
 
-    use_liberty = False
+    use_liberty = True
 
 
     # This method grabs the position of the sensor
