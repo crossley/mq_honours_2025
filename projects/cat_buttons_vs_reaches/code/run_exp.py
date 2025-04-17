@@ -3,7 +3,7 @@ from util_func import *
 
 if __name__ == "__main__":
 
-    subject = 2
+    subject = 3
     dir_data = "../data"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
     full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
@@ -19,36 +19,34 @@ if __name__ == "__main__":
     condition_4 = {"cat": "II", "resp": "reach"}
 
     condition_list = [condition_1, condition_2, condition_3, condition_4]
-
     condition = condition_list[(subject - 1) % len(condition_list)]
-    print((subject - 1) % len(condition_list))
-    print(condition)
+
+    print("Subject: ", subject, "Condition: ", condition)
 
     ds = make_stim_cats(condition["cat"])
-    ds["cat"] = ds["cat"].map({1: "A", 2: "B"})
-    print(ds)
+    ds["cat"] = ds["cat"].map({1: "Left", 2: "Right"})
 
-    # plot the stimuli coloured by label
-    fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
-    sns.scatterplot(data=ds,
-                    x="x",
-                    y="y",
-                    style="cat",
-                    alpha=0.5,
-                    ax=ax[0, 0])
-    sns.scatterplot(data=ds,
-                    x="xt",
-                    y="yt",
-                    style="cat",
-                    alpha=0.5,
-                    ax=ax[0, 1])
-    ax[0, 0].plot([0, 100], [0, 100], 'k--')
-    ax[0, 1].plot([0, 5], [0, np.pi / 2], 'k--')
-    plt.show()
+#     # plot the stimuli coloured by label
+#     fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
+#     sns.scatterplot(data=ds,
+#                     x="x",
+#                     y="y",
+#                     style="cat",
+#                     alpha=0.5,
+#                     ax=ax[0, 0])
+#     sns.scatterplot(data=ds,
+#                     x="xt",
+#                     y="yt",
+#                     style="cat",
+#                     alpha=0.5,
+#                     ax=ax[0, 1])
+#     ax[0, 0].plot([0, 100], [0, 100], 'k--')
+#     ax[0, 1].plot([0, 5], [0, np.pi / 2], 'k--')
+#     plt.show()
 
     # plot_stim_space_examples(ds)
 
-    use_liberty = False
+    use_liberty = True
 
     if condition["resp"] == "button":
         use_liberty = False
@@ -435,12 +433,12 @@ if __name__ == "__main__":
 
         target_distance = 10
 
-        target_angle_left = 45
+        target_angle_left = -45
         target_pos_x = -target_distance * px_per_cm * np.cos(-(target_angle_left + 90) * np.pi / 180.0)
         target_pos_y = target_distance * px_per_cm * np.sin(-(target_angle_left + 90) * np.pi / 180.0)
         target_pos_left = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
 
-        target_angle_right = -45
+        target_angle_right = 45
         target_pos_x = -target_distance * px_per_cm * np.cos(-(target_angle_right + 90) * np.pi / 180.0)
         target_pos_y =  target_distance * px_per_cm * np.sin(-(target_angle_right + 90) * np.pi / 180.0)
         target_pos_right = (start_pos[0] + target_pos_x, start_pos[1] + target_pos_y)
@@ -472,8 +470,7 @@ if __name__ == "__main__":
                 resp = -1
                 rt = -1
                 t_state = 0
-                trial += 1
-                if trial == n_trial - 1:
+                if trial == n_trial:
                     state_current = "state_finished"
                 else:
                     sf = ds['xt'].iloc[trial] * (px_per_cm**-1)
@@ -485,21 +482,24 @@ if __name__ == "__main__":
         if state_current == "state_stim":
             t_state += clock_state.tick()
             screen.fill(black)
-            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*size_px_bg)
+
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*size_px_bg)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*size_px_bg)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
-            screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
+            screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
+            screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
             if (resp == pygame.K_d) or (resp == pygame.K_k):
                 rt = t_state
                 t_state = 0
 
                 if resp == pygame.K_d:
-                    resp = "A"
+                    resp = "Left"
+                    fbxy = target_pos_left
                 elif resp == pygame.K_k:
-                    resp = "B"
-
-                print(cat, resp)
+                    resp = "Right"
+                    fbxy = target_pos_right
 
                 if cat == resp:
                     fb = "Correct"
@@ -512,18 +512,19 @@ if __name__ == "__main__":
             t_state += clock_state.tick()
 
             screen.fill(black)
-            pygame.draw.circle(screen, grey, (center_x, center_y), size_px*size_px_bg)
+
+            pygame.draw.circle(screen, grey, target_pos_left, size_px*size_px_bg)
+            pygame.draw.circle(screen, grey, target_pos_right, size_px*size_px_bg)
             grating_patch = create_grating_patch(size_px, sf, ori)
             grating_surface = grating_to_surface(grating_patch)
-            screen.blit(grating_surface, (center_x - size_px / 2, center_y - size_px / 2))
+            screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
+            screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
             if fb == "Correct":
-                pygame.draw.circle(screen, green, (center_x, center_y),
-                                   size_px / 2 + 10, 5)
+                pygame.draw.circle(screen, green, fbxy, size_px / 2 + 10, 5)
 
             elif fb == "Incorrect":
-                pygame.draw.circle(screen, red, (center_x, center_y),
-                                   size_px / 2 + 10, 5)
+                pygame.draw.circle(screen, red, fbxy, size_px / 2 + 10, 5)
 
             if t_state > 1000:
                 trial_data['condition'].append(condition)
@@ -545,12 +546,13 @@ if __name__ == "__main__":
                 trial_data['fb'].append(fb)
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 t_state = 0
+                trial += 1
                 state_current = "state_iti"
 
         if state_current == "state_searching_ring":
             t_state += clock_state.tick()
 
-            if trial == n_trial - 1:
+            if trial == n_trial:
                 state_current = "state_finished"
 
             else:
@@ -660,9 +662,9 @@ if __name__ == "__main__":
                 ep_theta_deg = ep_theta * 180 / np.pi + 90
 
                 if np.abs(target_angle_left - ep_theta_deg) < np.abs(target_angle_right - ep_theta_deg):
-                    resp = "A"
+                    resp = "Left"
                 else:
-                    resp = "B"
+                    resp = "Right"
 
                 if cat == resp:
                     fb = "Correct"
@@ -683,7 +685,7 @@ if __name__ == "__main__":
             screen.blit(grating_surface, (target_pos_left[0] - size_px / 2, target_pos_left[1] - size_px / 2))
             screen.blit(grating_surface, (target_pos_right[0] - size_px / 2, target_pos_right[1] - size_px / 2))
 
-            if resp == "A":
+            if resp == "Left":
                 if fb == "Correct":
                     pygame.draw.circle(screen, green, target_pos_left, size_px / 2 + 10, 5)
 
@@ -710,12 +712,6 @@ if __name__ == "__main__":
                 trial_data['condition'].append(condition)
                 trial_data['subject'].append(subject)
                 trial_data['trial'].append(trial)
-                trial_data['target_angle_left'].append(target_angle_left)
-                trial_data['target_angle_right'].append(target_angle_right)
-                trial_data['su'].append(np.round(su[trial], 2))
-                trial_data['rotation'].append(np.round(rotation[trial], 2))
-                trial_data['rt'].append(rt)
-                trial_data['mt'].append(mt)
                 trial_data['ep'].append(np.round(ep_theta, 2))
                 trial_data['cat'].append(cat)
                 trial_data['x'].append(ds.x[trial])
@@ -724,7 +720,12 @@ if __name__ == "__main__":
                 trial_data['yt'].append(ds.yt[trial])
                 trial_data['resp'].append(resp)
                 trial_data['fb'].append(fb)
-
+                trial_data['rt'].append(rt)
+                trial_data['mt'].append(mt)
+                trial_data['target_angle_left'].append(target_angle_left)
+                trial_data['target_angle_right'].append(target_angle_right)
+                trial_data['su'].append(np.round(su[trial], 2))
+                trial_data['rotation'].append(np.round(rotation[trial], 2))
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 pd.DataFrame(trial_move).to_csv(full_path_move, index=False)
                 t_state = 0

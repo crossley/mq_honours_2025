@@ -10,7 +10,15 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
+<<<<<<< HEAD
     subject = 1001
+=======
+<<<<<<< HEAD
+    subject = 1101
+=======
+    subject = 1202
+>>>>>>> b78e20e561a854740309b41bb3f586f84dd06fbf
+>>>>>>> dc8b86e2abe4be06001b647624d9caf3106e8b4b
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
@@ -440,12 +448,69 @@ if __name__ == "__main__":
             screen.fill(black)
             screen.blit(text, text_rect)
 
+        if state_current == "state_instruct_clamp_start":
+            t_state += clock_state.tick()
+
+            message_instruct_1 = "Good job so far!"
+            message_instruct_2 = "You are about to begin a new phase of the experiment."
+            message_instruct_3 = "During this phase, the visual feedback (cursor) will always appear in the same location, regardless of where you actually reach."
+            message_instruct_4 = "Please ignore this visual feedback and continue reaching your hand directly through the target as accurately as possible."
+            message_instruct_5 = "Press the Y key to proceed."
+
+            message_instruct = [
+                message_instruct_1, message_instruct_2, message_instruct_3,
+                message_instruct_4, message_instruct_5
+            ]
+
+            spacing = screen_height / 10
+            screen.fill(black)
+            for ii, mm in enumerate(message_instruct):
+                text = font.render(mm, True, (255, 255, 255))
+                text_rect = text.get_rect(center=(screen_width / 2,
+                                                  screen_height / 4 +
+                                                  ii * spacing))
+                screen.blit(text, text_rect)
+
+            if resp == pygame.K_y:
+                t_state = 0
+                state_current = "state_iti"
+
+        if state_current == "state_instruct_clamp_end":
+            t_state += clock_state.tick()
+
+            message_instruct_1 = "Good job so far!"
+            message_instruct_2 = "You are about to begin a new phase of the experiment."
+            message_instruct_3 = "During this phase, the visual feedback (cursor) will track your actual hand position."
+            message_instruct_4 = "Please use this visual feedback and reach directly through the target as accurately as possible."
+            message_instruct_5 = "Press the Y key to proceed."
+
+            message_instruct = [
+                message_instruct_1, message_instruct_2, message_instruct_3,
+                message_instruct_4, message_instruct_5
+            ]
+
+            spacing = screen_height / 10
+            screen.fill(black)
+            for ii, mm in enumerate(message_instruct):
+                text = font.render(mm, True, (255, 255, 255))
+                text_rect = text.get_rect(center=(screen_width / 2,
+                                                  screen_height / 4 +
+                                                  ii * spacing))
+                screen.blit(text, text_rect)
+
+            if resp == pygame.K_y:
+                t_state = 0
+                state_current = "state_iti"
+
+
         if state_current == "state_iti":
             t_state += clock_state.tick()
             screen.fill(black)
             if t_state > 1000:
-                resp = -1
                 rt = -1
+                mt = -1
+                ep = -1
+                resp = -1
                 t_state = 0
                 trial += 1
                 if trial == n_trial:
@@ -580,7 +645,17 @@ if __name__ == "__main__":
                 pd.DataFrame(trial_data).to_csv(full_path, index=False)
                 pd.DataFrame(trial_move).to_csv(full_path_move, index=False)
                 t_state = 0
-                state_current = "state_iti"
+
+                # starting clamp phase
+                if rotation[trial] == 0 and rotation[trial + 1] != 0:
+                    state_current = "state_instruct_clamp_start"
+
+                # finishing clamp phase
+                elif rotation[trial] != 0 and rotation[trial + 1] == 0:
+                    state_current = "state_instruct_clamp_end"
+
+                else:
+                    state_current = "state_iti"
 
         trial_move['condition'].append(condition)
         trial_move['subject'].append(subject)

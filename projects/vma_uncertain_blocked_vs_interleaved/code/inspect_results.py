@@ -126,11 +126,13 @@ d.groupby(["condition"])["subject"].nunique()
 
 d.sort_values(["condition", "subject", "trial", "t"], inplace=True)
 
-# for s in d["subject"].unique():
-#     fig, ax = plt.subplots(1, 1, squeeze=False)
-#     ax[0, 0].plot(d[d["subject"] == s]["su"])
-#     ax[0, 0].set_title(f"Subject {s}")
-#     plt.show()
+for s in d["subject"].unique():
+    ds = d[d["subject"] == s]
+    fig, ax = plt.subplots(3, 1, squeeze=False)
+    sns.scatterplot(data=ds, x="trial", y="rotation", hue="condition", ax=ax[0, 0])
+    sns.scatterplot(data=ds, x="trial", y="su", hue="condition", ax=ax[1, 0])
+    sns.scatterplot(data=ds, x="trial", y="imv", hue="condition", ax=ax[2, 0])
+    plt.show()
 
 # high low
 # 13, 15, 17, 25, 31, 35
