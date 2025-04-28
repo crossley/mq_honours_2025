@@ -10,7 +10,15 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
+<<<<<<< HEAD
     subject = 1
+=======
+<<<<<<< HEAD
+    subject = 1101
+=======
+    subject = 1202
+>>>>>>> b78e20e561a854740309b41bb3f586f84dd06fbf
+>>>>>>> 1cc5be26c550efc69d63904ed47b284c138c87f2
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
@@ -21,7 +29,7 @@ if __name__ == "__main__":
         print(f"File {f_name} already exists. Aborting.")
         sys.exit()
 
-    use_liberty = False
+    use_liberty = True
 
 
     # This method grabs the position of the sensor
@@ -148,9 +156,6 @@ if __name__ == "__main__":
     rotation = np.zeros(n_trial)
     rotation[30:130] = 15 * np.pi / 180
     rotation[230:330] = 15 * np.pi / 180
-
-    # TODO: don't forget to delete
-    rotation[2:4] = 1
 
     endpoint_visible = np.ones(n_trial)
     endpoint_visible[130:180] = 0
