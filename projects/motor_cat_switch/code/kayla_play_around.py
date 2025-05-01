@@ -4,7 +4,7 @@ from util_func import *
 if __name__ == "__main__":
 
     # set subject number
-    subject = 12
+    subject = 14
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f_name)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
                 time_state = 0
                 resp = -1
                 state_current = "state_setsub"
-                print(state_current)
+                #print(state_current)
 
     # state finished
         if state_current == "state_finished":
@@ -214,7 +214,7 @@ if __name__ == "__main__":
             screen.fill(black)
             sub_task = np.random.choice([1, 2])
             state_current = "state_cue"
-            print(state_current)
+            #print(state_current)
 
     # cue image
         if state_current == "state_cue":
@@ -263,7 +263,7 @@ if __name__ == "__main__":
                 time_state = 0
                 resp = -1
                 state_current = "state_stim"
-                print(state_current)
+                #print(state_current)
 
     # stimulus state
         if state_current == "state_stim":
@@ -300,7 +300,7 @@ if __name__ == "__main__":
 
                 if sub_task == 1:
 
-                    print("sub_task 1")
+                    #print("sub_task 1")
                     #print(condition)
                     #print()
 
@@ -311,7 +311,7 @@ if __name__ == "__main__":
 
                 elif sub_task == 2:
 
-                    print("sub_task 2")
+                    #print("sub_task 2")
                     #print(condition)
                     #print()
 
