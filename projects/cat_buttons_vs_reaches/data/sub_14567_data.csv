@@ -1,0 +1,4 @@
+condition,subject,trial,cat,x,y,xt,yt,resp,fb,rotation,su,target_angle_left,target_angle_right,rt,mt,ep
+"{'cat': 'II', 'resp': 'button'}",14567,0,Left,27.669299872250974,59.47230993205149,1.3834649936125487,0.9341888598727411,Right,Incorrect,0.0,0.0,-45,45,31093,-1,-1
+"{'cat': 'II', 'resp': 'button'}",14567,1,Right,37.34184220757558,21.130115406529715,1.867092110378779,0.3319110766532912,Left,Incorrect,0.0,0.0,-45,45,4534,-1,-1
+"{'cat': 'II', 'resp': 'button'}",14567,2,Left,39.95014491734745,56.548421896830455,1.9975072458673724,0.8882605340158938,Left,Correct,0.0,0.0,-45,45,982,-1,-1
