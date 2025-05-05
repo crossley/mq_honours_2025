@@ -1,0 +1,4 @@
+condition,subject,trial,sub_task,cat,x,y,xt,yt,resp,rt,fb
+incongruent_pinky_thumb,8,0,1,109,63.82,51.34,0.07,0.81,109,304,Correct
+incongruent_pinky_thumb,8,1,1,109,40.17,22.45,0.04,0.35,99,351,Incorrect
+incongruent_pinky_thumb,8,2,2,112,34.86,45.69,0.04,0.72,112,318,Correct
