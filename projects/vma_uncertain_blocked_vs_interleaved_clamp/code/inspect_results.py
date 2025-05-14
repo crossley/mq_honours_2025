@@ -77,7 +77,7 @@ dir_data = "../data/"
 
 d_rec = []
 
-for s in range(999, 1001):
+for s in [1201, 1202, 1301, 1302]:
 
     f_trl = "sub_{}_data.csv".format(s)
     f_mv = "sub_{}_data_move.csv".format(s)
@@ -300,8 +300,8 @@ dpp = dp.groupby(["condition", "trial", "phase", "su_prev"], observed=True)[[
     "emv", "delta_emv", "movement_error", "movement_error_prev", "rotation"
 ]].mean().reset_index()
 
-dp.to_csv("../data_summary/summary_per_trial_per_subject.csv")
-dpp.to_csv("../data_summary/summary_per_trial.csv")
+# dp.to_csv("../data_summary/summary_per_trial_per_subject.csv")
+# dpp.to_csv("../data_summary/summary_per_trial.csv")
 
 fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 4))
 fig.subplots_adjust(wspace=0.3, hspace=0.5)
@@ -512,7 +512,7 @@ dd["su_prev"] = dd["su_prev"].astype("category")
 dd["condition"] = dd["condition"].astype("category")
 dd["phase_2"] = dd["phase_2"].astype("category")
 
-dd.to_csv("../data_summary/d_for_anova.csv")
+# dd.to_csv("../data_summary/d_for_anova.csv")
 
 fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 4))
 fig.subplots_adjust(wspace=0.3, hspace=0.3)
