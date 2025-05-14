@@ -3,11 +3,7 @@ from util_func import *
 
 if __name__ == "__main__":
 
-<<<<<<< HEAD
-    subject = 4
-=======
-    subject = 1
->>>>>>> 4b47c1c602cce98945ecc764f4cb0ef71c2a6bbd
+    subject = 10
     dir_data = "../data"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
     full_path_move = os.path.join(dir_data, f"sub_{subject}_data_move.csv")
