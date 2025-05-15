@@ -16,17 +16,11 @@ if __name__ == "__main__":
 
     experiment_1_relearn = {"experiment": 1, "condition": "relearn"}
     experiment_1_new_learn = {"experiment": 1, "condition": "new_learn"}
-    # experiment_2_relearn = {"experiment": 2, "condition": "relearn"}
-    # experiment_2_new_learn = {"experiment": 2, "condition": "new_learn"}
-    # experiment_3_relearn = {"experiment": 3, "condition": "relearn"}
-    # experiment_3_new_learn = {"experiment": 3, "condition": "new_learn"}
+    experiment_2_relearn = {"experiment": 2, "condition": "relearn"}
+    experiment_2_new_learn = {"experiment": 2, "condition": "new_learn"}
 
-    # condition_list = [
-    #     experiment_1_relearn, experiment_1_new_learn, experiment_2_relearn,
-    #     experiment_2_new_learn, experiment_3_relearn, experiment_3_new_learn
-    # ]
-
-    condition_list = [experiment_1_relearn, experiment_1_new_learn]
+    # condition_list = [experiment_1_relearn, experiment_1_new_learn]
+    condition_list = [experiment_2_relearn, experiment_2_new_learn]
 
     condition = condition_list[(subject - 1) % len(condition_list)]
     print((subject - 1) % 2)
@@ -264,7 +258,7 @@ if __name__ == "__main__":
                         else:
                             fb = "Incorrect"
 
-                    # Exp 2 and 3: 7525 mixed intervention
+                    # Exp 2: 7525 mixed intervention
                     else:
                         # give veridical feedback 25% of the time
                         if np.random.rand() < 0.25:
