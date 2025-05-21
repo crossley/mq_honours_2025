@@ -1,0 +1,3 @@
+condition,subject,trial,cat,x,y,xt,yt,resp,fb,rotation,su,target_angle_left,target_angle_right,rt,mt,ep
+"{'cat': 'II', 'resp': 'button'}",29999999999999999,0,Right,71.42079782331791,53.22593200397243,3.5710398911658956,0.8360709848207483,Right,Correct,0.0,0.0,-45,45,34614,-1,-1
+"{'cat': 'II', 'resp': 'button'}",29999999999999999,1,Right,50.28494250636727,21.774792087897236,2.5142471253183634,0.34203763428391554,Left,Incorrect,0.0,0.0,-45,45,4737,-1,-1
