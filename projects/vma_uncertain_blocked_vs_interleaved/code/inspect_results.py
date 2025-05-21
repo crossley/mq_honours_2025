@@ -77,8 +77,7 @@ dir_data = "../data/"
 
 d_rec = []
 
-# for s in range(13, 40):
-for s in [999, 1000]:
+for s in [1, 2, 3, 4, 5, 6, 7]:
 
     f_trl = "sub_{}_data.csv".format(s)
     f_mv = "sub_{}_data_move.csv".format(s)
@@ -126,14 +125,15 @@ d.groupby(["condition"])["subject"].nunique()
 
 d.sort_values(["condition", "subject", "trial", "t"], inplace=True)
 
-for s in d["subject"].unique():
-    ds = d[d["subject"] == s]
-    fig, ax = plt.subplots(3, 1, squeeze=False)
-    sns.scatterplot(data=ds, x="trial", y="rotation", hue="condition", ax=ax[0, 0])
-    sns.scatterplot(data=ds, x="trial", y="su", hue="condition", ax=ax[1, 0])
-    sns.scatterplot(data=ds, x="trial", y="imv", hue="condition", ax=ax[2, 0])
-    plt.show()
+# for s in d["subject"].unique():
+#     ds = d[d["subject"] == s]
+#     fig, ax = plt.subplots(3, 1, squeeze=False)
+#     sns.scatterplot(data=ds, x="trial", y="rotation", hue="condition", ax=ax[0, 0])
+#     sns.scatterplot(data=ds, x="trial", y="su", hue="condition", ax=ax[1, 0])
+#     sns.scatterplot(data=ds, x="trial", y="imv", hue="condition", ax=ax[2, 0])
+#     plt.show()
 
+# TODO: mark this for later
 # high low
 # 13, 15, 17, 25, 31, 35
 
@@ -304,8 +304,8 @@ dpp = dp.groupby(["condition", "trial", "phase", "su_prev"], observed=True)[[
     "emv", "delta_emv", "movement_error", "movement_error_prev", "rotation"
 ]].mean().reset_index()
 
-dp.to_csv("../data_summary/summary_per_trial_per_subject.csv")
-dpp.to_csv("../data_summary/summary_per_trial.csv")
+# dp.to_csv("../data_summary/summary_per_trial_per_subject.csv")
+# dpp.to_csv("../data_summary/summary_per_trial.csv")
 
 fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 4))
 fig.subplots_adjust(wspace=0.3, hspace=0.5)
@@ -516,7 +516,7 @@ dd["su_prev"] = dd["su_prev"].astype("category")
 dd["condition"] = dd["condition"].astype("category")
 dd["phase_2"] = dd["phase_2"].astype("category")
 
-dd.to_csv("../data_summary/d_for_anova.csv")
+# dd.to_csv("../data_summary/d_for_anova.csv")
 
 fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 4))
 fig.subplots_adjust(wspace=0.3, hspace=0.3)

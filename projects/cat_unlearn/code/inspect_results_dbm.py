@@ -21,16 +21,10 @@ if __name__ == "__main__":
         if file.endswith(".csv"):
             d = pd.read_csv(os.path.join(dir_data, file))
             d["block"] = np.floor(d["trial"] / 25).astype(int)
-            d["acc"] = d["cat"] == d["resp"]
-            d["phase"] = ["Learn"] * 300 + ["Intervention"] * 300 + ["Test"
-                                                                     ] * 299
+            d["phase"] = ["Learn"] * 300 + ["Intervention"] * 300 + ["Test"] * 299
             d_rec.append(d)
 
     d = pd.concat(d_rec, ignore_index=True)
-
-    # NOTE: Fix bug in code for first 18 ppts
-    d.loc[(d["condition"] == "new_learn") & (d["subject"] <= 18),
-          "experiment"] = 2
 
     d.loc[d["cat"] == "A", "cat"] = 0
     d.loc[d["cat"] == "B", "cat"] = 1
@@ -41,6 +35,9 @@ if __name__ == "__main__":
 
     block_size = 100
     d["block"] = d.groupby(["condition", "subject"]).cumcount() // block_size
+
+    # NOTE: focus on the last learning block and the test blocks
+    d = d.loc[(d["block"] == 2) | (d["block"] == 6)]
 
     d = d.sort_values(["condition", "subject", "block", "trial"])
 
@@ -116,53 +113,29 @@ if __name__ == "__main__":
                        ]).apply(get_best_model_class_2).reset_index(drop=True)
     ddd["best_model_class_2"] = ddd["best_model_class_2"].astype("category")
 
-    dcat = d[["condition", "sub_task", "x", "y", "cat"]].drop_duplicates()
-    dcat["effector"] = "None"
-    dcat.loc[(dcat["condition"] == "4F4K_congruent") & (dcat["sub_task"] == 1)
-             & (dcat["cat"] == 0), "effector"] = "L1"
-    dcat.loc[(dcat["condition"] == "4F4K_congruent") & (dcat["sub_task"] == 1)
-             & (dcat["cat"] == 1), "effector"] = "R1"
-    dcat.loc[(dcat["condition"] == "4F4K_congruent") & (dcat["sub_task"] == 2)
-             & (dcat["cat"] == 0), "effector"] = "R2"
-    dcat.loc[(dcat["condition"] == "4F4K_congruent") & (dcat["sub_task"] == 2)
-             & (dcat["cat"] == 1), "effector"] = "L2"
-    dcat.loc[(dcat["condition"] == "4F4K_incongruent") &
-             (dcat["sub_task"] == 1) & (dcat["cat"] == 0), "effector"] = "L1"
-    dcat.loc[(dcat["condition"] == "4F4K_incongruent") &
-             (dcat["sub_task"] == 1) & (dcat["cat"] == 1), "effector"] = "R1"
-    dcat.loc[(dcat["condition"] == "4F4K_incongruent") &
-             (dcat["sub_task"] == 2) & (dcat["cat"] == 0), "effector"] = "R2"
-    dcat.loc[(dcat["condition"] == "4F4K_incongruent") &
-             (dcat["sub_task"] == 2) & (dcat["cat"] == 1), "effector"] = "L2"
-    dcat["effector"] = dcat["effector"].astype("category")
-    dcat["effector"] = dcat["effector"].cat.reorder_categories(
-        ["L1", "R1", "L2", "R2"])
+    dcat = d[["condition", "x", "y", "cat"]].drop_duplicates()
 
     fig, ax = plt.subplots(2, 3, squeeze=False, figsize=(12, 8))
     # plot categories
-    sns.scatterplot(data=dcat[(dcat["condition"] == "4F4K_congruent")
-                              & (dcat["sub_task"] == 1)],
+    sns.scatterplot(data=dcat[(dcat["condition"] == "relearn") & (dcat["block"] == 2)],
                     x="x",
                     y="y",
                     hue="effector",
                     legend=True,
                     ax=ax[0, 0])
-    sns.scatterplot(data=dcat[(dcat["condition"] == "4F4K_congruent")
-                              & (dcat["sub_task"] == 2)],
+    sns.scatterplot(data=dcat[(dcat["condition"] == "relearn") & (dcat["block"] == 6)],
                     x="x",
                     y="y",
                     hue="effector",
                     legend=True,
                     ax=ax[0, 1])
-    sns.scatterplot(data=dcat[(dcat["condition"] == "4F4K_incongruent")
-                              & (dcat["sub_task"] == 1)],
+    sns.scatterplot(data=dcat[(dcat["condition"] == "new_learn") & (dcat["block"] == 2)],
                     x="x",
                     y="y",
                     hue="effector",
                     legend=True,
                     ax=ax[1, 0])
-    sns.scatterplot(data=dcat[(dcat["condition"] == "4F4K_incongruent")
-                              & (dcat["sub_task"] == 2)],
+    sns.scatterplot(data=dcat[(dcat["condition"] == "new_learn") & (dcat["block"] == 6)],
                     x="x",
                     y="y",
                     hue="effector",
@@ -170,39 +143,38 @@ if __name__ == "__main__":
                     ax=ax[1, 1])
 
     # plot counts
-    sns.countplot(data=ddd[ddd["condition"] == "4F4K_congruent"],
+    sns.countplot(data=ddd[ddd["condition"] == "relearn"],
                   x='best_model_class_2',
                   stat="proportion",
                   ax=ax[0, 2])
-    sns.countplot(data=ddd[ddd["condition"] == "4F4K_incongruent"],
+    sns.countplot(data=ddd[ddd["condition"] == "new_learn"],
                   x='best_model_class_2',
                   stat="proportion",
                   ax=ax[1, 2])
-    ax[0, 2].set - title("4F4K_congruent")
-    ax[1, 2].set - title("4F4K_incongruent")
+    ax[0, 2].set_title("relearn")
+    ax[1, 2].set_title("new_learn")
 
     # plot bounds
     for c in dd["condition"].unique():
         dc = dd[dd["condition"] == c]
         for s in dc["subject"].unique():
             ds = dc[dc["subject"] == s]
-            for st in ds["sub_task"].unique():
+            for st in ds["block"].unique():
 
-                plot_title = f"Condition: {c} - Sub-Task: {st}"
+                plot_title = f"Condition: {c} - block: {st}"
 
-                if c == "4F4K_congruent":
-                    if st == 1:
+                if c == "relearn":
+                    if st == 2:
                         ax_ = ax[0, 0]
                     else:
                         ax_ = ax[0, 1]
                 else:
-                    if st == 1:
+                    if st == 2:
                         ax_ = ax[1, 0]
                     else:
                         ax_ = ax[1, 1]
 
-                x = dd.loc[(dd["condition"] == c) & (dd["subject"] == s) &
-                           (dd["sub_task"] == st) & (dd["block"] == 3)]
+                x = dd.loc[(dd["condition"] == c) & (dd["subject"] == s) & (dd["block"] == st)]
 
                 best_model = x["best_model"].to_numpy()[0]
 
