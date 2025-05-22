@@ -10,11 +10,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
-<<<<<<< HEAD
-    subject = 1101
-=======
-    subject = 1202
->>>>>>> b78e20e561a854740309b41bb3f586f84dd06fbf
+    subject = 9675
     dir_data = "../data"
     f_name = f"sub_{subject}_data.csv"
     full_path = os.path.join(dir_data, f"sub_{subject}_data.csv")
