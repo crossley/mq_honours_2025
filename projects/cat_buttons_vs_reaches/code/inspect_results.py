@@ -60,12 +60,13 @@ print(d.groupby(["condition"])["subject"].nunique())
 #     # ds.plot(subplots=True)
 #     # plt.show()
 
-fig, ax = plt.subplots(2, 2, squeeze=False, figsize=(12, 8))
+fig, ax = plt.subplots(d["subject"].unique().shape[0], 1, squeeze=False, figsize=(12, 8))
 ax = ax.flatten()
-for i, c in enumerate(d["condition"].unique()):
+for i, s in enumerate(d["subject"].unique()):
     axx = ax[i]
-    dc = d[d["condition"] == c]
-    sns.lineplot(data=dc, x="trial", y="acc", ax=axx)
-    sns.lineplot(data=dc, x="trial", y="pred", ax=axx)
-    axx.set_title(c)
+    ds = d[d["subject"] == s]
+    sns.lineplot(data=ds, x="trial", y="acc", ax=axx)
+    sns.lineplot(data=ds, x="trial", y="pred", ax=axx)
+    axx.set_title(f"Subject {s} - {ds.condition.unique()[0]}")
+plt.tight_layout()
 plt.show()
