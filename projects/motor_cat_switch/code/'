@@ -30,15 +30,16 @@ d["cat"] = d["cat"].cat.rename_categories({
     106: "R1",  # 'j'
     100: "L2",  # 'd'
     107: "R2",  # 'k'
-    99: "L3",  # 'c'
+    99:  "L3",  # 'c'
     109: "R3",  # 'm'
     113: "L4",  # 'q'
     112: "R4",  # 'p'
 })
 
 # reorder the levels of the cat variable L1, R1, L2, R2, L3, R3, L4, R4
-d["cat"] = d["cat"].cat.reorder_categories(
-    ["L1", "R1", "L2", "R2", "L3", "R3", "L4", "R4"])
+d["cat"] = d["cat"].cat.reorder_categories([
+    "L1", "R1", "L2", "R2", "L3", "R3", "L4", "R4"
+])
 
 d["condition"] = d["condition"].astype("category")
 
@@ -79,7 +80,11 @@ fig, ax = plt.subplots(1,
                        figsize=(16, 8))
 for i, cnd in enumerate(d["condition"].cat.categories):
     dc = d[d["condition"] == cnd].copy()
-    sns.lineplot(data=dc, x="block", y="acc", style="sub_task", ax=ax[0, i])
+    sns.lineplot(data=dc,
+                 x="block",
+                 y="acc",
+                 style="sub_task",
+                 ax=ax[0, i])
     ax[0, i].set_ylim(0, 1)
     ax[0, i].set_title(cnd)
     sns.move_legend(ax[0, i], "upper left")
@@ -87,44 +92,49 @@ plt.tight_layout()
 plt.savefig("../figures/fig_accuracy_per_block.png")
 plt.close()
 
+
 # Average over everything for simple bar graphs
 dd = d.groupby(["condition", "subject"],
                observed=True)["acc"].mean().reset_index()
 
-# reorder condition levels so that congruent / incongruent / congruent / incongruent
-dd['condition'] = dd['condition'].cat.reorder_categories([
-    'congruent_pinky_thumb', 'incongruent_pinky_thumb',
-    'congruent_pointer_middle', 'incongruent_pointer_middle'
-])
-
-fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(10, 6))
-sns.barplot(data=dd, x="condition", y="acc", ax=ax[0, 0])
-ax[0, 0].set_ylim(0, 1)
+fig, ax = plt.subplots(1,
+                       d["condition"].nunique(),
+                       squeeze=False,
+                       figsize=(16, 8))
+for i, cnd in enumerate(d["condition"].cat.categories):
+    dc = d[d["condition"] == cnd].copy()
+    sns.barplot(data=dc,
+                 x="condition",
+                 y="acc",
+                 ax=ax[0, i])
+    ax[0, i].set_ylim(0, 1)
+    ax[0, i].set_title(cnd)
 plt.tight_layout()
 plt.savefig("../figures/fig_accuracy_per_condition.png")
 plt.close()
+
 
 ## print the unique subjects in each condition
 print(d.groupby(["condition"])["subject"].unique())
 
 # dd = dd.sort_values(
 #     by=["condition", "subject", "sub_task", "block"]).reset_index(drop=True)
-#
+# 
 # dd.to_csv("../data_summary/summary.csv", index=False)
-#
+# 
 # # NOTE: stats
 # dd["block"] = dd["block"].astype("category")
 # dd["condition"] = dd["condition"].astype("category")
 # dd["sub_task"] = dd["sub_task"].astype("category")
-#
+# 
 # dd.groupby(["condition"])["subject"].nunique()
-#
+# 
 # pg.mixed_anova(data=dd,
 #                dv="acc",
 #                subject="subject",
 #                within="block",
 #                between="condition")
-#
+# 
 # # NOTE: use stats models to perform a logistc regression
 # # using `d` as the data frame, `acc` as the observed
 # # variable, `trial` as discrete predictor, `condition` as a
@@ -133,29 +143,29 @@ print(d.groupby(["condition"])["subject"].unique())
 # # a binomial distribution.
 # import statsmodels.api as sm
 # import patsy
-#
+# 
 # dd = d[["trial", "condition", "sub_task", "acc"]].copy()
 # dd["intercept"] = 1
 # dd = pd.get_dummies(dd,
 #                     columns=["condition", "sub_task"],
 #                     drop_first=True,
 #                     dtype=int)
-#
+# 
 # dd = dd.rename(columns={"condition_4F4K_incongruent": "condition"})
 # dd = dd.rename(columns={"sub_task_2": "sub_task"})
-#
+# 
 # endog = dd["acc"]
 # exog = patsy.dmatrix("np.log(trial) * condition * sub_task",
 #                      data=dd,
 #                      return_type="dataframe")
-#
+# 
 # model = sm.GLM(endog, exog, family=sm.families.Binomial())
 # fm = model.fit()
 # print(fm.summary())
-#
+# 
 # # NOTE: plot the predicted probabilities
 # dd["pred"] = fm.predict(exog)
-#
+# 
 # fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(6, 6))
 # sns.lineplot(data=dd,
 #              x="trial",
