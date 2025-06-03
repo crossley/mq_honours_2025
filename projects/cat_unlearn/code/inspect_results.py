@@ -69,9 +69,7 @@ print(d.groupby(["experiment", "condition"])["subject"].nunique())
 dd = d.groupby(["experiment", "condition", "subject", "block",
                 "phase"])["acc"].mean().reset_index()
 
-#
-
-fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(6, 6))
+fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(6, 6))
 sns.lineplot(data=dd[(dd["experiment"] == 1)],
              x="block",
              y="acc",
@@ -79,7 +77,14 @@ sns.lineplot(data=dd[(dd["experiment"] == 1)],
              style="phase",
              legend=True,
              ax=ax[0, 0])
-ax[0, 0].set_title("Exp 1")
+sns.lineplot(data=dd[(dd["experiment"] == 2)],
+             x="block",
+             y="acc",
+             hue="condition",
+             style="phase",
+             legend=True,
+             ax=ax[0, 1])
+ax[0, 1].set_title("Exp 2")
 plt.tight_layout()
 plt.show()
 
@@ -89,24 +94,24 @@ d.groupby(["experiment", "condition"])["subject"].nunique()
 dd = dd.sort_values(["experiment", "condition", "subject", "block", "phase"])
 # dd[(dd["experiment"] == 1)].to_csv("../data_summary/summary.csv", index=False)
 
-import statsmodels.formula.api as smf
-import statsmodels.api as sm
-
-d['trial'] = d['trial'] + 1
-d['acc'] = d['acc'].astype(int)
-d['condition'] = d['condition'].astype('category')
-d['phase'] = d['phase'].astype('category')
-
-d['log_trial'] = np.log(d['trial'])
-
-d['condition'] = d['condition'].cat.reorder_categories(
-    ['relearn', 'new_learn'])
-d['phase'] = d['phase'].cat.reorder_categories(
-    ['Learning', 'Intervention', 'Test'])
-
-model = smf.glm(
-    formula='acc ~ log_trial + condition + phase + condition:phase',
-    data=d,
-    family=sm.families.Binomial()).fit()
-
-print(model.summary())
+# import statsmodels.formula.api as smf
+# import statsmodels.api as sm
+# 
+# d['trial'] = d['trial'] + 1
+# d['acc'] = d['acc'].astype(int)
+# d['condition'] = d['condition'].astype('category')
+# d['phase'] = d['phase'].astype('category')
+# 
+# d['log_trial'] = np.log(d['trial'])
+# 
+# d['condition'] = d['condition'].cat.reorder_categories(
+#     ['relearn', 'new_learn'])
+# d['phase'] = d['phase'].cat.reorder_categories(
+#     ['Learning', 'Intervention', 'Test'])
+# 
+# model = smf.glm(
+#     formula='acc ~ log_trial + condition + phase + condition:phase',
+#     data=d,
+#     family=sm.families.Binomial()).fit()
+# 
+# print(model.summary())
