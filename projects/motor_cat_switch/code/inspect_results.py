@@ -114,50 +114,123 @@ pg.mixed_anova(data=dd,
                within="block",
                between="condition")
 
+
+############
+
+# Kayla's pretty graph here
+# I played around with the code from last thursday to make 
+# the bar plot for the poster a bit prettier :) 
+
+# Ignore the jankiness, ChatGPT was just sooooooooo helpful
+# (sidenote: watching copilot chat work is like watching a toddler
+# learn to walk, it is so cute and funny, but also a bit sad
+# when it falls over, but then it gets back up and tries again)
+# ...... copilot chat is the toddler, not me, I am the parent
+
+# For the record, the last 4 lines were filled by copilot automatically.
+# It just started chatting shit about ChatGPT and I wanted to see where
+# it went and that's where that ended up. I couldn't stop laughing so 
+# it's staying for the moment :) 
+
+# Group by condition and subject to get average accuracy
+dd = d.groupby(["condition", "subject"], observed=True)["acc"].mean().reset_index()
+
+# Add new columns to split condition into factors
+dd["fingers"] = dd["condition"].map({
+    "congruent_pointer_middle": "Pointer/Middle",
+    "incongruent_pointer_middle": "Pointer/Middle",
+    "congruent_pinky_thumb": "Pinky/Thumb",
+    "incongruent_pinky_thumb": "Pinky/Thumb"
+})
+
+dd["Congruency"] = dd["condition"].map({
+    "congruent_pointer_middle": "Congruent",
+    "incongruent_pointer_middle": "Incongruent",
+    "congruent_pinky_thumb": "Congruent",
+    "incongruent_pinky_thumb": "Incongruent"
+})
+
+# Set custom color palette for congruency
+palette = {
+    "Congruent": "#4c72b0",     # Blue
+    "Incongruent": "#dd8452"    # Orange
+}
+
+# Create the bar plot
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(
+    data=dd,
+    x="fingers",              # Just the finger pairs
+    y="acc",
+    hue="Congruency",         # Hue determines the color
+    palette=palette,
+    ax=ax,
+    errwidth=1.5,
+    capsize=0.15
+)
+
+# Format axes
+ax.set_ylim(0, 1)
+ax.set_xlabel("Condition", fontsize=18, labelpad=12)
+ax.set_xticklabels(['Pinky/Thumb', 'Pointer/Middle']) # Set labels
+ax.set_ylabel("Accuracy (%)", fontsize=18, labelpad=10)
+ax.tick_params(axis='x', labelsize=11)
+ax.tick_params(axis='y', labelsize=11)
+plt.xticks(fontsize=16)
+plt.yticks(fontsize=16)
+plt.legend(fontsize='x-large', title_fontsize='14')
+plt.tight_layout()
+sns.despine(ax=ax)
+# plt.show()
+
+# Save figure 
+plt.savefig("../figures/fig_accuracy_per_condition.png", dpi=300)
+plt.close()
+
 # NOTE: use stats models to perform a logistc regression
 # using `d` as the data frame, `acc` as the observed
 # variable, `trial` as discrete predictor, `condition` as a
 # categorical predictor, and `sub_task` as a categorical
 # predictor. The model should be fit to the data using
 # a binomial distribution.
-import statsmodels.api as sm
-import patsy
+# import statsmodels.api as sm
+# import patsy
 
-dd = d[["trial", "condition", "sub_task", "acc"]].copy()
-dd["intercept"] = 1
-dd = pd.get_dummies(dd,
-                    columns=["condition", "sub_task"],
-                    drop_first=True,
-                    dtype=int)
+# dd = d[["trial", "condition", "sub_task", "acc"]].copy()
+# dd["intercept"] = 1
+# dd = pd.get_dummies(dd,
+#                     columns=["condition", "sub_task"],
+#                     drop_first=True,
+#                     dtype=int)
 
-dd = dd.rename(columns={"condition_4F4K_incongruent": "condition"})
-dd = dd.rename(columns={"sub_task_2": "sub_task"})
+# dd = dd.rename(columns={"condition_4F4K_incongruent": "condition"})
+# dd = dd.rename(columns={"sub_task_2": "sub_task"})
 
-endog = dd["acc"]
-exog = patsy.dmatrix("np.log(trial) * condition * sub_task",
-                     data=dd,
-                     return_type="dataframe")
+# endog = dd["acc"]
+# exog = patsy.dmatrix("np.log(trial) * condition * sub_task",
+#                      data=dd,
+#                      return_type="dataframe")
 
-model = sm.GLM(endog, exog, family=sm.families.Binomial())
-fm = model.fit()
-print(fm.summary())
+# model = sm.GLM(endog, exog, family=sm.families.Binomial())
+# fm = model.fit()
+# print(fm.summary())
 
-# NOTE: plot the predicted probabilities
-dd["pred"] = fm.predict(exog)
+# # NOTE: plot the predicted probabilities
+# dd["pred"] = fm.predict(exog)
 
-fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(6, 6))
-sns.lineplot(data=dd,
-             x="trial",
-             y="acc",
-             hue="condition",
-             alpha=0.5,
-             legend=False,
-             ax=ax[0, 0])
-sns.lineplot(data=dd,
-             x="trial",
-             y="pred",
-             hue="condition",
-             ax=ax[0, 0])
-ax[0, 0].set_ylim(0, 1)
-plt.savefig("../figures/fig_logistic_regression.png")
-plt.close()
+# fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(6, 6))
+# sns.lineplot(data=dd,
+#              x="trial",
+#              y="acc",
+#              hue="condition",
+#              alpha=0.5,
+#              legend=False,
+#              ax=ax[0, 0])
+# sns.lineplot(data=dd,
+#              x="trial",
+#              y="pred",
+#              hue="condition",
+#              ax=ax[0, 0])
+# ax[0, 0].set_ylim(0, 1)
+# plt.savefig("../figures/fig_logistic_regression.png")
+# plt.close()
