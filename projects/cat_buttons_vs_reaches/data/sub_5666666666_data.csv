@@ -1,0 +1,3 @@
+condition,subject,trial,cat,x,y,xt,yt,resp,fb,rotation,su,target_angle_left,target_angle_right,rt,mt,ep
+"{'cat': 'RB', 'resp': 'reach'}",5666666666,0,Right,57.409126238886124,80.05994108416571,2.870456311944306,1.2575786137842333,Right,Correct,0.0,0.0,-45,45,2009,21200,-0.72
+"{'cat': 'RB', 'resp': 'reach'}",5666666666,1,Right,66.7465190219869,51.61679492266585,3.337325951099345,0.8107947186544899,Left,Incorrect,0.0,0.0,-45,45,2011,4273,-2.61
