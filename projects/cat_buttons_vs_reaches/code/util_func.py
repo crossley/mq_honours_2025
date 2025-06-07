@@ -1,7 +1,7 @@
 from imports import *
 
 
-def make_stim_cats():
+def make_stim_cats(category_structure):
 
     n_stimuli_per_category = 200
 
@@ -11,7 +11,12 @@ def make_stim_cats():
     sigma = np.sqrt(var)
 
     # Rotation matrix
-    theta = 45 * np.pi / 180
+    if category_structure == "II":
+        theta = 45 * np.pi / 180
+
+    elif category_structure == "RB":
+        theta = 90 * np.pi / 180
+
     rotation_matrix = np.array([[np.cos(theta), -np.sin(theta)],
                                 [np.sin(theta), np.cos(theta)]])
 
@@ -22,8 +27,7 @@ def make_stim_cats():
     def sample_within_ellipse(mean, n_samples):
 
         # Sample radius
-        r = np.sqrt(np.random.uniform(
-            0, 9, n_samples))  # 3 standard deviations, squared is 9
+        r = np.sqrt(np.random.uniform(0, 9, n_samples))  # 3 standard deviations, squared is 9
 
         # Sample angle
         angle = np.random.uniform(0, 2 * np.pi, n_samples)
@@ -36,7 +40,6 @@ def make_stim_cats():
         x_scaled = x * std_major
         y_scaled = y * std_minor
 
-        # Apply rotation
         points = np.dot(rotation_matrix, np.vstack([x_scaled, y_scaled]))
 
         # Translate to mean
@@ -46,8 +49,13 @@ def make_stim_cats():
         return points.T
 
     # Generate stimuli
-    category_A_mean = [40, 60]
-    category_B_mean = [60, 40]
+    if category_structure == "II":
+        category_A_mean = [40, 60]
+        category_B_mean = [60, 40]
+
+    elif category_structure == "RB":
+        category_A_mean = [40, 50]
+        category_B_mean = [60, 50]
 
     stimuli_A = sample_within_ellipse(category_A_mean, n_stimuli_per_category)
     stimuli_B = sample_within_ellipse(category_B_mean, n_stimuli_per_category)
