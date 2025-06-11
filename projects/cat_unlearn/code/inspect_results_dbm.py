@@ -20,7 +20,6 @@ if __name__ == "__main__":
 
         if file.endswith(".csv"):
             d = pd.read_csv(os.path.join(dir_data, file))
-            d["block"] = np.floor(d["trial"] / 25).astype(int)
             d["phase"] = ["Learn"] * 300 + ["Intervention"] * 300 + ["Test"] * 299
             d_rec.append(d)
 
@@ -37,7 +36,7 @@ if __name__ == "__main__":
     d["block"] = d.groupby(["condition", "subject"]).cumcount() // block_size
 
     # NOTE: focus on the last learning block and the test blocks
-    d = d.loc[(d["block"] == 2) | (d["block"] == 6)]
+    # d = d.loc[(d["block"] == 2) | (d["block"] == 6)]
 
     d = d.sort_values(["condition", "subject", "block", "trial"])
 
@@ -77,9 +76,7 @@ if __name__ == "__main__":
         return x
 
     if not os.path.exists("../dbm_fits/dbm_results.csv"):
-        dbm = (d.groupby(["condition", "subject",
-                          "block"]).apply(fit_dbm, models, side, k, n,
-                                          model_names).reset_index())
+        dbm = (d.groupby(["condition", "subject", "block"]).apply(fit_dbm, models, side, k, n, model_names).reset_index())
 
         dbm.to_csv("../dbm_fits/dbm_results.csv")
 
@@ -91,15 +88,13 @@ if __name__ == "__main__":
 
     dd = dbm.loc[dbm["model"] == dbm["best_model"]]
 
-    ddd = dd[["condition", "subject", "block",
-              "best_model"]].drop_duplicates()
+    ddd = dd[["condition", "subject", "block", "best_model"]].drop_duplicates()
     ddd["best_model_class"] = ddd["best_model"].str.split("_").str[1]
-    ddd.loc[ddd["best_model_class"] != "glc",
-            "best_model_class"] = "rule-based"
-    ddd.loc[ddd["best_model_class"] == "glc",
-            "best_model_class"] = "procedural"
+    ddd.loc[ddd["best_model_class"] != "glc", "best_model_class"] = "rule-based"
+    ddd.loc[ddd["best_model_class"] == "glc", "best_model_class"] = "procedural"
     ddd["best_model_class"] = ddd["best_model_class"].astype("category")
     ddd = ddd.reset_index(drop=True)
+
 
     def get_best_model_class_2(x):
         if np.isin("rule-based", x["best_model_class"].to_numpy()):
@@ -109,46 +104,44 @@ if __name__ == "__main__":
 
         return x
 
-    ddd = ddd.groupby(["condition", "subject"
-                       ]).apply(get_best_model_class_2).reset_index(drop=True)
+    ddd = ddd.groupby(["condition", "block", "subject" ]).apply(get_best_model_class_2).reset_index(drop=True)
     ddd["best_model_class_2"] = ddd["best_model_class_2"].astype("category")
+    ddd['block'] = ddd['block'].astype("category")
 
-    dcat = d[["condition", "x", "y", "cat"]].drop_duplicates()
+    dcat = d[["condition", "block", "x", "y", "cat"]].drop_duplicates()
 
     fig, ax = plt.subplots(2, 3, squeeze=False, figsize=(12, 8))
     # plot categories
     sns.scatterplot(data=dcat[(dcat["condition"] == "relearn") & (dcat["block"] == 2)],
                     x="x",
                     y="y",
-                    hue="effector",
                     legend=True,
                     ax=ax[0, 0])
     sns.scatterplot(data=dcat[(dcat["condition"] == "relearn") & (dcat["block"] == 6)],
                     x="x",
                     y="y",
-                    hue="effector",
                     legend=True,
                     ax=ax[0, 1])
     sns.scatterplot(data=dcat[(dcat["condition"] == "new_learn") & (dcat["block"] == 2)],
                     x="x",
                     y="y",
-                    hue="effector",
                     legend=True,
                     ax=ax[1, 0])
     sns.scatterplot(data=dcat[(dcat["condition"] == "new_learn") & (dcat["block"] == 6)],
                     x="x",
                     y="y",
-                    hue="effector",
                     legend=True,
                     ax=ax[1, 1])
 
     # plot counts
     sns.countplot(data=ddd[ddd["condition"] == "relearn"],
                   x='best_model_class_2',
+                  hue='block',
                   stat="proportion",
                   ax=ax[0, 2])
     sns.countplot(data=ddd[ddd["condition"] == "new_learn"],
                   x='best_model_class_2',
+                  hue='block',
                   stat="proportion",
                   ax=ax[1, 2])
     ax[0, 2].set_title("relearn")
