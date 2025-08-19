@@ -67,19 +67,36 @@ dd = d.groupby(["condition", "trial"]).agg(
     pred=("pred", "mean")
 ).reset_index()
 
-fig, ax = plt.subplots(4, 1, squeeze=False, figsize=(8, 10))
-for i, c in enumerate(dd.condition.unique()):
-    axx = ax[i, 0]
-    ddc = dd[dd["condition"] == c]
-    sns.lineplot(data=ddc,
-                 x="trial",
-                 y="acc",
-                 ax=axx)
-    sns.lineplot(data=ddc,
-                 x="trial",
-                 y="pred",
-                 ax=axx)
-    axx.set_title(c)
-    axx.set_ylim(0.2, 1)
+
+# condition currently encodes:
+#
+# array(["{'cat': 'II', 'resp': 'button'}",
+#        "{'cat': 'II', 'resp': 'reach'}",
+#        "{'cat': 'RB', 'resp': 'button'}",
+#        "{'cat': 'RB', 'resp': 'reach'}"], dtype=object)
+#
+# We want to turn this into two separate columns:
+# - category_structure
+# - response_modality
+dd["category_structure"] = dd["condition"].apply( lambda x: eval(x)["cat"])
+dd["response_modality"] = dd["condition"].apply( lambda x: eval(x)["resp"])
+
+fig, ax = plt.subplots(2, 2, squeeze=False, figsize=(8, 10))
+for i, cs in enumerate(dd.category_structure.unique()):
+    dcs = dd[dd["category_structure"] == cs]
+    for j, rm in enumerate(dd.response_modality.unique()):
+        drm = dcs[dcs["response_modality"] == rm]
+        sns.lineplot(data=drm,
+                     x="trial",
+                     y="acc",
+                     alpha=0.5,
+                     ax=ax[i, j])
+        sns.lineplot(data=drm,
+                     x="trial",
+                     y="pred",
+                     ax=ax[i, j])
+        plot_title = f"{cs} - {rm}"
+        ax[i, j].set_title(plot_title)
+        ax[i, j].set_ylim(0.2, 1)
 plt.tight_layout()
 plt.show()
