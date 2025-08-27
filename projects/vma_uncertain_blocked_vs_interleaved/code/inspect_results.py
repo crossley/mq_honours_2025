@@ -77,79 +77,87 @@ dir_data = "../data/"
 
 d_rec = []
 
-for s in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25,
-          26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]:
+# iterate over files in the ../data directory
+for f in os.listdir(dir_data):
 
-    f_trl = "sub_{}_data.csv".format(s)
-    f_mv = "sub_{}_data_move.csv".format(s)
+    if f.endswith(".csv"):
 
-    d_trl = pd.read_csv(os.path.join(dir_data, f_trl))
-    d_mv = pd.read_csv(os.path.join(dir_data, f_mv))
+        # extract subject number
+        s = int(f.split("_")[1])
 
-    d_trl = d_trl.sort_values(["condition", "subject", "trial"])
-    d_mv = d_mv.sort_values(["condition", "subject", "t", "trial"])
+        # try to load both trial and movement files
+        try:
+            f_trl = "sub_{}_data.csv".format(s)
+            f_mv = "sub_{}_data_move.csv".format(s)
 
-    d_hold = d_mv[d_mv["state"].isin(["state_holding"])]
-    x_start = d_hold.x.mean()
-    y_start = d_hold.y.mean()
+            d_trl = pd.read_csv(os.path.join(dir_data, f_trl))
+            d_mv = pd.read_csv(os.path.join(dir_data, f_mv))
 
-    d_mv = d_mv[d_mv["state"].isin(["state_moving"])]
+            if d_trl.shape[0] != 429:
+                print("Subject {} has anomolous trial data".format(s))
 
-    phase = np.zeros(d_trl["trial"].nunique())
-    phase[:30] = 1
-    phase[30:130] = 2
-    phase[130:180] = 3
-    phase[180:230] = 4
-    phase[230:330] = 5
-    phase[330:380] = 6
-    phase[380:] = 7
-    d_trl["phase"] = phase
+            else:
+                d_trl = d_trl.sort_values(["condition", "subject", "trial"])
+                d_mv = d_mv.sort_values(["condition", "subject", "t", "trial"])
 
-    d_trl["su"] = d_trl["su"].astype("category")
-    d_trl["ep"] = (d_trl["ep"] * 180 / np.pi) + 90
-    d_trl["rotation"] = d_trl["rotation"] * 180 / np.pi
+                d_hold = d_mv[d_mv["state"].isin(["state_holding"])]
+                x_start = d_hold.x.mean()
+                y_start = d_hold.y.mean()
 
-    d = pd.merge(d_mv,
-                 d_trl,
-                 how="outer",
-                 on=["condition", "subject", "trial"])
+                d_mv = d_mv[d_mv["state"].isin(["state_moving"])]
 
-    d = d.groupby(["condition", "subject", "trial"],
-                  group_keys=False).apply(compute_kinematics)
+                phase = np.zeros(d_trl["trial"].nunique())
+                phase[:30] = 1
+                phase[30:130] = 2
+                phase[130:180] = 3
+                phase[180:230] = 4
+                phase[230:330] = 5
+                phase[330:380] = 6
+                phase[380:] = 7
+                d_trl["phase"] = phase
 
-    d_rec.append(d)
+                d_trl["su"] = d_trl["su"].astype("category")
+                d_trl["ep"] = (d_trl["ep"] * 180 / np.pi) + 90
+                d_trl["rotation"] = d_trl["rotation"] * 180 / np.pi
+
+                d = pd.merge(d_mv,
+                             d_trl,
+                             how="outer",
+                             on=["condition", "subject", "trial"])
+
+                d = d.groupby(["condition", "subject", "trial"],
+                              group_keys=False).apply(compute_kinematics)
+
+                d_rec.append(d)
+
+        # print warning if file load fails
+        except Exception as e:
+            print("Could not load data for subject {}: {}".format(s, e))
 
 d = pd.concat(d_rec)
+
+d["su"] = d["su"].cat.rename_categories({0.0: "low", 26.78: "high"})
 
 d.groupby(["condition"])["subject"].unique()
 d.groupby(["condition"])["subject"].nunique()
 
 d.sort_values(["condition", "subject", "trial", "t"], inplace=True)
 
-# for s in d["subject"].unique():
-#     ds = d[d["subject"] == s]
-#     fig, ax = plt.subplots(3, 1, squeeze=False)
-#     sns.scatterplot(data=ds, x="trial", y="rotation", hue="condition", ax=ax[0, 0])
-#     sns.scatterplot(data=ds, x="trial", y="su", hue="condition", ax=ax[1, 0])
-#     sns.scatterplot(data=ds, x="trial", y="imv", hue="condition", ax=ax[2, 0])
-#     ax[1, 0].invert_yaxis()
-#     plt.suptitle("Subject {}".format(s))
-#     plt.show()
-
-d.loc[(d["condition"] == "blocked")
-      & np.isin(d["subject"], [1, 5, 9, 13, 15, 19, 21, 25, 29, 33, 35, 39]),
-      "condition"] = "Blocked - Low High"
-
-d.loc[(d["condition"] == "blocked")
-      & np.isin(d["subject"], [3, 7, 11, 17, 23, 27, 31, 37]),
-      "condition"] = "Blocked - High Low"
+for s in d["subject"].unique():
+    ds = d[d["subject"] == s]
+    if ds["condition"].unique() == "blocked":
+        if ds[ds["phase"] == 2]["su"].unique() == "low":
+            d.loc[d["subject"] == s, "condition"] = "Blocked - Low High"
+        else:
+            d.loc[d["subject"] == s, "condition"] = "Blocked - High Low"
 
 d.groupby(["condition"])["subject"].unique()
 d.groupby(["condition"])["subject"].nunique()
 d.groupby(["condition", "subject"])["trial"].nunique()
 
 # NOTE: create by trial frame
-dp = d[["condition", "subject", "trial", "phase", "su", "emv", "rotation"]].drop_duplicates()
+dp = d[["condition", "subject", "trial", "phase", "su", "emv",
+        "rotation"]].drop_duplicates()
 
 
 def identify_outliers(x):
@@ -160,7 +168,8 @@ def identify_outliers(x):
     return x
 
 
-dp = dp.groupby(["condition", "subject"]).apply(identify_outliers).reset_index(drop=True)
+dp = dp.groupby(["condition",
+                 "subject"]).apply(identify_outliers).reset_index(drop=True)
 dp.groupby(["condition", "subject"])["outlier"].sum()
 dp = dp[dp["outlier"] == False]
 dp = dp.sort_values(["condition", "subject", "trial"])
@@ -283,9 +292,9 @@ for i, s in enumerate(dp["subject"].unique()):
     plt.savefig("../figures/fig_scatter_sub_" + str(s) + ".png")
     plt.close()
 
-# NOTE: Exclude ppts that have abberant movements
-# subs_exc = [...]
-# dp = dp[~np.isin(dp["subject"], subs_exc)]
+# NOTE: Exclude ppts that have abberant movements based on previous two figures
+subs_exc = [5, 10, 17, 30, 31, 35, 37, 40, 57, 62, 999, 1000]
+dp = dp[~np.isin(dp["subject"], subs_exc)]
 
 # NOTE: average over subjects
 dpp = dp.groupby(["condition", "trial", "phase", "su_prev"], observed=True)[[
@@ -297,7 +306,7 @@ dpp = dp.groupby(["condition", "trial", "phase", "su_prev"], observed=True)[[
 
 fig, ax = plt.subplots(3, 1, squeeze=False, figsize=(8, 12))
 ax = ax.T
-fig.subplots_adjust(wspace=0.3, hspace=0.5)
+fig.subplots_adjust(wspace=0.3, hspace=0.3, top=0.95, bottom=0.05)
 sns.scatterplot(
     data=dpp[dpp["condition"] == "Blocked - High Low"],
     x="trial",
@@ -330,7 +339,10 @@ sns.scatterplot(
 )
 [x.set_ylim(-10, 40) for x in [ax[0, 0], ax[0, 1], ax[0, 2]]]
 [x.set_xlabel("Trial") for x in [ax[0, 0], ax[0, 1], ax[0, 2]]]
-[x.set_ylabel("Endppoint Movement Vector") for x in [ax[0, 0], ax[0, 1], ax[0, 2]]]
+[
+    x.set_ylabel("Endppoint Movement Vector")
+    for x in [ax[0, 0], ax[0, 1], ax[0, 2]]
+]
 [
     sns.lineplot(
         data=dpp[dpp["condition"] != "interleaved"],
@@ -352,9 +364,12 @@ plt.close()
 
 # adapt 1 is trials 30:130
 ph = 2
-dppp1 = dp[(dp["condition"] == "Blocked - Low High") & (dp["phase"] == ph) & (dp["trial"] < 35)].copy()
-dppp2 = dp[(dp["condition"] == "Blocked - High Low") & (dp["phase"] == ph) & (dp["trial"] < 35)].copy()
-dppp3 = dp[(dp["condition"] == "interleaved") & (dp["phase"] == ph)        & (dp["trial"] < 35)].copy()
+dppp1 = dp[(dp["condition"] == "Blocked - Low High") & (dp["phase"] == ph) &
+           (dp["trial"] < 35)].copy()
+dppp2 = dp[(dp["condition"] == "Blocked - High Low") & (dp["phase"] == ph) &
+           (dp["trial"] < 35)].copy()
+dppp3 = dp[(dp["condition"] == "interleaved") & (dp["phase"] == ph) &
+           (dp["trial"] < 35)].copy()
 fig, ax = plt.subplots(1, 3, squeeze=False, figsize=(12, 4))
 fig.subplots_adjust(wspace=0.3, hspace=0.5)
 sns.scatterplot(
@@ -403,7 +418,8 @@ mod_formula += "1"
 ph = 2
 
 # NOTE: set condition here
-dppp = dpp[(dpp["condition"] == "Blocked - Low High") & (dpp["phase"] == ph) & (dpp["trial"] < 60)].copy()
+dppp = dpp[(dpp["condition"] == "Blocked - Low High") & (dpp["phase"] == ph) &
+           (dpp["trial"] < 60)].copy()
 # dppp = dpp[(dpp["condition"] == "Blocked - High Low") & (dpp["phase"] == ph) & (dpp["trial"] < 60)].copy()
 # dppp = dpp[(dpp["condition"] == "interleaved") & (dpp["phase"] == ph) & (dpp["trial"] < 60)].copy()
 

@@ -38,8 +38,8 @@ def load_data():
     d["resp"] = d["resp"].astype(int)
     d["acc"] = d["cat"] == d["resp"]
 
-    d.groupby(["experiment", "condition"])["subject"].unique()
-    d.groupby(["experiment", "condition"])["subject"].nunique()
+    print(d.groupby(["experiment", "condition"])["subject"].unique())
+    print(d.groupby(["experiment", "condition"])["subject"].nunique())
 
     return d
 
@@ -71,7 +71,8 @@ def make_fig_cat_struct():
                 x="x",
                 y="y",
                 hue="cat",
-                palette=["#FF0000", "#0000FF"],
+                # palette=["#FF0000", "#0000FF"],
+                alpha=0.5,
                 legend=False,
                 ax=axx,
             )
@@ -84,6 +85,18 @@ def make_fig_cat_struct():
 def make_fig_acc_all():
 
     d = load_data()
+
+    # plot histogram of accuracy per subject in the final 100 trials of learning
+    d_last_100 = d[(d["trial"] < 300) & (d["trial"] > 200)].copy()
+    d_last_100 = d_last_100.groupby(["experiment", "condition",
+                                     "subject"])["acc"].mean().reset_index()
+
+    # fig, ax = plt.subplots(figsize=(8, 6))
+    # sns.histplot(data=d_last_100,
+    #              x="acc",
+    #              bins=np.arange(0, 1.05, 0.02)
+    #              )
+    # plt.show()
 
     # define exc_subs to be numpy array of subjects that did not reach greater than 65% accuracy
     # during the last 100 trials of learning
@@ -464,7 +477,8 @@ def make_fig_dbm_state():
         print(f"{condition_label} — P(θ₁ > θ₂) = {prob_exp1_greater:.3f}")
 
     # Posterior samples
-    theta1_relearn, theta2_relearn, delta_relearn = get_posterior_diff(12, 13, 10, 12)
+    theta1_relearn, theta2_relearn, delta_relearn = get_posterior_diff(
+        12, 13, 10, 12)
     theta1_new, theta2_new, delta_new = get_posterior_diff(5, 16, 5, 13)
 
     # Cross-condition comparisons within experiments
@@ -544,6 +558,8 @@ def make_fig_dbm_state():
 
 
 if __name__ == "__main__":
+
+    sns.set_palette("colorblind")
 
     make_fig_cat_struct()
     make_fig_acc_all()
