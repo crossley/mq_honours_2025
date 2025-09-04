@@ -77,71 +77,79 @@ dir_data = "../data/"
 
 d_rec = []
 
-for s in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27]:
+# iterate over files in the ../data directory
+for f in os.listdir(dir_data):
 
-    f_trl = "sub_{}_data.csv".format(s)
-    f_mv = "sub_{}_data_move.csv".format(s)
+    if f.endswith(".csv"):
 
-    d_trl = pd.read_csv(os.path.join(dir_data, f_trl))
-    d_mv = pd.read_csv(os.path.join(dir_data, f_mv))
+        # extract subject number
+        s = int(f.split("_")[1])
 
-    d_trl = d_trl.sort_values(["condition", "subject", "trial"])
-    d_mv = d_mv.sort_values(["condition", "subject", "t", "trial"])
+        # try to load both trial and movement files
+        try:
+            f_trl = "sub_{}_data.csv".format(s)
+            f_mv = "sub_{}_data_move.csv".format(s)
 
-    d_hold = d_mv[d_mv["state"].isin(["state_holding"])]
-    x_start = d_hold.x.mean()
-    y_start = d_hold.y.mean()
+            d_trl = pd.read_csv(os.path.join(dir_data, f_trl))
+            d_mv = pd.read_csv(os.path.join(dir_data, f_mv))
 
-    d_mv = d_mv[d_mv["state"].isin(["state_moving"])]
+            if d_trl.shape[0] != 429:
+                print("Subject {} has anomolous trial data".format(s))
 
-    phase = np.zeros(d_trl["trial"].nunique())
-    phase[:30] = 1
-    phase[30:130] = 2
-    phase[130:180] = 3
-    phase[180:230] = 4
-    phase[230:330] = 5
-    phase[330:380] = 6
-    phase[380:] = 7
-    d_trl["phase"] = phase
+            else:
+                d_trl = d_trl.sort_values(["condition", "subject", "trial"])
+                d_mv = d_mv.sort_values(["condition", "subject", "t", "trial"])
 
-    d_trl["su"] = d_trl["su"].astype("category")
-    d_trl["ep"] = (d_trl["ep"] * 180 / np.pi) + 90
-    d_trl["rotation"] = d_trl["rotation"] * 180 / np.pi
+                d_hold = d_mv[d_mv["state"].isin(["state_holding"])]
+                x_start = d_hold.x.mean()
+                y_start = d_hold.y.mean()
 
-    d = pd.merge(d_mv,
-                 d_trl,
-                 how="outer",
-                 on=["condition", "subject", "trial"])
+                d_mv = d_mv[d_mv["state"].isin(["state_moving"])]
 
-    d = d.groupby(["condition", "subject", "trial"],
-                  group_keys=False).apply(compute_kinematics)
+                phase = np.zeros(d_trl["trial"].nunique())
+                phase[:30] = 1
+                phase[30:130] = 2
+                phase[130:180] = 3
+                phase[180:230] = 4
+                phase[230:330] = 5
+                phase[330:380] = 6
+                phase[380:] = 7
+                d_trl["phase"] = phase
 
-    d_rec.append(d)
+                d_trl["su"] = d_trl["su"].astype("category")
+                d_trl["ep"] = (d_trl["ep"] * 180 / np.pi) + 90
+                d_trl["rotation"] = d_trl["rotation"] * 180 / np.pi
+
+                d = pd.merge(d_mv,
+                             d_trl,
+                             how="outer",
+                             on=["condition", "subject", "trial"])
+
+                d = d.groupby(["condition", "subject", "trial"],
+                              group_keys=False).apply(compute_kinematics)
+
+                d_rec.append(d)
+
+        # print warning if file load fails
+        except Exception as e:
+            print("Could not load data for subject {}: {}".format(s, e))
 
 d = pd.concat(d_rec)
+
+d["su"] = d["su"].cat.rename_categories({0.0: "low", 26.78: "high"})
 
 d.groupby(["condition"])["subject"].unique()
 d.groupby(["condition"])["subject"].nunique()
 
 d.sort_values(["condition", "subject", "trial", "t"], inplace=True)
 
-# for s in d["subject"].unique():
-#     ds = d[d["subject"] == s]
-#     fig, ax = plt.subplots(3, 1, squeeze=False)
-#     sns.scatterplot(data=ds, x="trial", y="rotation", hue="condition", ax=ax[0, 0])
-#     sns.scatterplot(data=ds, x="trial", y="su", hue="condition", ax=ax[1, 0])
-#     sns.scatterplot(data=ds, x="trial", y="imv", hue="condition", ax=ax[2, 0])
-#     ax[1, 0].invert_yaxis()
-#     plt.suptitle("Subject {}".format(s))
-#     plt.show()
-
-d.loc[(d["condition"] == "blocked")
-      & np.isin(d["subject"], [3, 5, 7, 9, 13, 21, 27]),
-      "condition"] = "Blocked - Low High"
-
-d.loc[(d["condition"] == "blocked")
-      & np.isin(d["subject"], [1, 11, 15, 17, 19, 23, 25]),
-      "condition"] = "Blocked - High Low"
+for s in d["subject"].unique():
+    ds = d[d["subject"] == s]
+    if ds["condition"].unique() == "blocked":
+        if ds[ds["phase"] == 2]["su"].unique() == "low":
+            d.loc[d["subject"] == s, "condition"] = "Blocked - Low High"
+        else:
+            d.loc[d["subject"] == s, "condition"] = "Blocked - High Low"
 
 d.groupby(["condition"])["subject"].unique()
 d.groupby(["condition"])["subject"].nunique()
