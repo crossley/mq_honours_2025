@@ -189,27 +189,28 @@ def fit_obj_func_sse(params, *args):
 
 
 def load_data():
-    dir_data = "../data/"
+    # dir_data = "../data/"
+    dir_data = "./"
 
     d_rec = []
     dd_rec = []
     ddd_rec = []
 
-    sub_nums = [1, 3, 4, 5, 6, 7, 8, 9, 10]
+    sub_nums = [1, 2, 7]
 
     for s in sub_nums:
 
         f_trl_1 = "sub_{}_data.csv".format(s)
         f_mv_1 = "sub_{}_data_move.csv".format(s)
 
-        f_trl_2 = "sub_{}{}_data.csv".format(s, s)
-        f_mv_2 = "sub_{}{}_data_move.csv".format(s, s)
+        f_trl_2 = "sub_{}.2_data.csv".format(s)
+        f_mv_2 = "sub_{}.2_data_move.csv".format(s)
 
-        f_trl_3 = "sub_{}{}{}_data.csv".format(s, s, s)
-        f_mv_3 = "sub_{}{}{}_data_move.csv".format(s, s, s)
+        f_trl_3 = "sub_{}.3_data.csv".format(s)
+        f_mv_3 = "sub_{}.3_data_move.csv".format(s)
 
-        f_trl_4 = "sub_{}{}{}{}_data.csv".format(s, s, s, s)
-        f_mv_4 = "sub_{}{}{}{}_data_move.csv".format(s, s, s, s)
+        f_trl_4 = "sub_{}.4_data.csv".format(s)
+        f_mv_4 = "sub_{}.4_data_move.csv".format(s)
 
         d_trl_1 = pd.read_csv(os.path.join(dir_data, f_trl_1))
         d_mv_1 = pd.read_csv(os.path.join(dir_data, f_mv_1))

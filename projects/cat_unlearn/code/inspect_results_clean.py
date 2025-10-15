@@ -86,17 +86,19 @@ def make_fig_acc_all():
 
     d = load_data()
 
+    d = d[d['experiment'] == 1].copy()
+
     # plot histogram of accuracy per subject in the final 100 trials of learning
     d_last_100 = d[(d["trial"] < 300) & (d["trial"] > 200)].copy()
     d_last_100 = d_last_100.groupby(["experiment", "condition",
                                      "subject"])["acc"].mean().reset_index()
 
-    # fig, ax = plt.subplots(figsize=(8, 6))
-    # sns.histplot(data=d_last_100,
-    #              x="acc",
-    #              bins=np.arange(0, 1.05, 0.02)
-    #              )
-    # plt.show()
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.histplot(data=d_last_100,
+                 x="acc",
+                 bins=np.arange(0, 1.05, 0.01)
+                 )
+    plt.show()
 
     # define exc_subs to be numpy array of subjects that did not reach greater than 65% accuracy
     # during the last 100 trials of learning

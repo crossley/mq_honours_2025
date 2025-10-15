@@ -61,13 +61,21 @@ for sub in d.subject.unique():
     dpp_base["training_target"] = dpp_base["training_target"].astype(
         "category")
 
+    dpp_adapt = ddds[ddds["phase"] == "adaptation"].groupby(
+        ["session", "phase", "target_angle",
+         "relsamp"])[["x", "y"]].mean().reset_index()
+    dpp_adapt["training_target"] = False
+    dpp_adapt.loc[dpp_adapt["target_angle"] == 0, "training_target"] = True
+    dpp_adapt["training_target"] = dpp_adapt["training_target"].astype(
+        "category")
+
     dpg = ds[ds["phase"] == "generalization"].groupby(
         ["session", "target_angle"],
         observed=True)["emv_rel"].mean().reset_index()
 
     # NOTE: main results figure
-    fig, ax = plt.subplots(4, 4, squeeze=False)
-    fig.set_size_inches(16, 11)
+    fig, ax = plt.subplots(4, 5, squeeze=False)
+    fig.set_size_inches(18, 12)
     fig.subplots_adjust(hspace=0.6, wspace=0.4)
     fig.subplots_adjust(left=0.1, right=0.85)
     fig.subplots_adjust(top=0.9, bottom=0.1)
@@ -107,7 +115,7 @@ for sub in d.subject.unique():
         for label in ax[i, 1].get_xticklabels():
             label.set_rotation(45)
 
-        # bseline trajectories
+        # baseline trajectories
         sns.scatterplot(
             data=dpp_base[dpp_base["session"] == s],
             x="x",
@@ -124,9 +132,9 @@ for sub in d.subject.unique():
                           color="black",
                           linestyle="--")
 
-        # generalisation trajectories
+        # adaptation trajectories
         sns.scatterplot(
-            data=dpp[dpp["session"] == s],
+            data=dpp_adapt[dpp_adapt["session"] == s],
             x="x",
             y="y",
             hue="target_angle",
@@ -136,13 +144,34 @@ for sub in d.subject.unique():
         )
         for ta in dpp.target_angle.unique():
             ta = ta + 90
+            ax[i, 2].plot([0, 200 * np.cos(ta * np.pi / 180)],
+                          [0, 200 * np.sin(ta * np.pi / 180)],
+                          color="black",
+                          linestyle="--")
+
+        # generalisation trajectories
+        sns.scatterplot(
+            data=dpp[dpp["session"] == s],
+            x="x",
+            y="y",
+            hue="target_angle",
+            style="training_target",
+            markers=True,
+            ax=ax[i, 4],
+        )
+        for ta in dpp.target_angle.unique():
+            ta = ta + 90
             ax[i, 3].plot([0, 200 * np.cos(ta * np.pi / 180)],
                           [0, 200 * np.sin(ta * np.pi / 180)],
                           color="black",
                           linestyle="--")
 
+    ax[0, 2].set_title("Baseline Trajectories")
+    ax[0, 3].set_title("Adaptation Trajectories")
+    ax[0, 4].set_title("Generalization Trajectories")
     [ax_.legend().remove() for ax_ in ax[:, 2]]
     [ax_.legend().remove() for ax_ in ax[:, 3]]
+    [ax_.legend().remove() for ax_ in ax[:, 4]]
     ax[0, 2].legend(bbox_to_anchor=(2.5, 1), loc=2, borderaxespad=0.)
     fig.suptitle("Subject " + str(sub))
     plt.savefig("../figures/subject_" + str(sub) + ".png")
