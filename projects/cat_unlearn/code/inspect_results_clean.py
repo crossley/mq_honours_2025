@@ -85,20 +85,21 @@ def make_fig_cat_struct():
 def make_fig_acc_all():
 
     d = load_data()
+    dp = d.copy()
 
-    d = d[d['experiment'] == 1].copy()
+    # d = d[d['experiment'] == 1].copy()
 
     # plot histogram of accuracy per subject in the final 100 trials of learning
     d_last_100 = d[(d["trial"] < 300) & (d["trial"] > 200)].copy()
     d_last_100 = d_last_100.groupby(["experiment", "condition",
                                      "subject"])["acc"].mean().reset_index()
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.histplot(data=d_last_100,
-                 x="acc",
-                 bins=np.arange(0, 1.05, 0.01)
-                 )
-    plt.show()
+    # fig, ax = plt.subplots(figsize=(8, 6))
+    # sns.histplot(data=d_last_100,
+    #              x="acc",
+    #              bins=np.arange(0, 1.05, 0.01)
+    #              )
+    # plt.show()
 
     # define exc_subs to be numpy array of subjects that did not reach greater than 65% accuracy
     # during the last 100 trials of learning
@@ -152,6 +153,88 @@ def make_fig_acc_all():
 
     plt.tight_layout()
     plt.savefig("../figures/subjects_accuracy_all.png", dpi=300)
+    plt.close()
+
+    # NOTE: show Experiment 2: by phase
+    # set default color pallete
+    fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
+    d2["condition"] = d2["condition"].map(
+        {"relearn": "Relearn", "new_learn": "New Learn"})
+    d2["condition"] = pd.Categorical(
+        d2["condition"], categories=["Relearn", "New Learn"], ordered=True)
+    d2["block"] = d2["block"] + 1
+    sns.lineplot(data=d2,
+                 x="block",
+                 y="acc",
+                 hue="condition",
+                 marker="o",
+                 ax=ax[0, 0])
+    ax[0, 0].axvline(x=12.5, color='gray', linestyle='--')
+    ax[0, 0].axvline(x=24.5, color='gray', linestyle='--')
+    ax[0, 0].set_title(r"Experiment 3: Mixed Feedback Intervention with $\bf{Verbal~Instruction}$", fontsize=14)
+    ax[0, 0].set_xlabel("Block", fontsize=14)
+    ax[0, 0].set_ylabel("Accuracy", fontsize=14)
+    ax[0, 0].set_xlim(0, 37)
+    ax[0, 0].set_ylim(0.3, 1.1)
+    ax[0, 0].set_yticks(np.arange(0.2, 1.1, 0.2))
+    ax[0, 0].get_legend().set_title("")
+    ax[0, 0].legend(loc='upper left')
+    ax_inset_1 = ax[0, 0].inset_axes([0.1, 0.05, 0.15, 0.2])
+    ax_inset_2 = ax[0, 0].inset_axes([0.425, 0.05, 0.15, 0.2])
+    ax_inset_3 = ax[0, 0].inset_axes([0.76, 0.74, 0.15, 0.2])
+    ax_inset_4 = ax[0, 0].inset_axes([0.76, 0.05, 0.15, 0.2])
+    dp["condition"] = dp["condition"].map(
+        {"relearn": "Relearn", "new_learn": "New Learn"})
+    sns.scatterplot(data=dp[dp["condition"] == "Relearn"].iloc[0:300, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_1,
+                    legend=False)
+    sns.scatterplot(data=dp[dp["condition"] == "Relearn"].iloc[300:600, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_2,
+                    legend=False)
+    sns.scatterplot(data=dp[dp["condition"] == "Relearn"].iloc[600:899, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_3,
+                    legend=False)
+    sns.scatterplot(data=dp[dp["condition"] == "New Learn"].iloc[600:899, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_4,
+                    legend=False)
+    ax_inset_1.set_title("Learn", fontsize=14)
+    ax_inset_2.set_title("Intervention", fontsize=14)
+    ax_inset_3.set_title("Test: Relearn", fontsize=14)
+    ax_inset_4.set_title("Test: New Learn", fontsize=14)
+    [x.set_xticks([]) for x in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    [y.set_yticks([]) for y in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    [x.set_xlabel("") for x in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    [y.set_ylabel("") for y in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    ax_inset_3.spines['top'].set_color('C0')
+    ax_inset_3.spines['bottom'].set_color('C0')
+    ax_inset_3.spines['left'].set_color('C0')
+    ax_inset_3.spines['right'].set_color('C0')
+    ax_inset_3.spines['top'].set_linewidth(2)
+    ax_inset_3.spines['bottom'].set_linewidth(2)
+    ax_inset_3.spines['left'].set_linewidth(2)
+    ax_inset_3.spines['right'].set_linewidth(2)
+    ax_inset_4.spines['top'].set_color('C1')
+    ax_inset_4.spines['bottom'].set_color('C1')
+    ax_inset_4.spines['left'].set_color('C1')
+    ax_inset_4.spines['right'].set_color('C1')
+    ax_inset_4.spines['top'].set_linewidth(2)
+    ax_inset_4.spines['bottom'].set_linewidth(2)
+    ax_inset_4.spines['left'].set_linewidth(2)
+    ax_inset_4.spines['right'].set_linewidth(2)
+    plt.tight_layout()
+    plt.savefig("../figures/subjects_accuracy_talk.png")
     plt.close()
 
 
@@ -220,6 +303,7 @@ def make_fig_acc_proc():
                        "block"]).apply(assign_best_model)
 
     d = load_data()
+    dp = d.copy()
 
     # define exc_subs to be numpy array of subjects that did not reach greater than 65% accuracy
     # during the last 100 trials of learning
@@ -271,11 +355,11 @@ def make_fig_acc_proc():
     d["condition"] = d["condition"].astype("category")
     d = d.groupby(["experiment", "condition", "subject", "phase", "block"],
                   observed=True)["acc"].mean().reset_index()
+
     d1 = d[d["experiment"] == 1]
     d2 = d[d["experiment"] == 2]
 
     fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
-
     sns.lineplot(data=d1,
                  x="block",
                  y="acc",
@@ -290,17 +374,14 @@ def make_fig_acc_proc():
                  ax=ax[0, 1])
     ax[0, 0].set_title("Experiment 1")
     ax[0, 1].set_title("Experiment 2")
-
     for axx in ax.flatten():
         axx.set_xlabel("Block")
         axx.set_ylabel("Accuracy")
         axx.set_ylim(.3, 1)
         axx.legend(loc="lower left", ncol=2)
-
     plt.tight_layout()
     plt.savefig("../figures/subjects_accuracy_proc.png", dpi=300)
     plt.close()
-
 
 def make_fig_dbm():
 
@@ -561,10 +642,10 @@ def make_fig_dbm_state():
 
 if __name__ == "__main__":
 
-    sns.set_palette("colorblind")
+    # sns.set_palette("colorblind")
 
-    make_fig_cat_struct()
+    # make_fig_cat_struct()
     make_fig_acc_all()
-    make_fig_acc_proc()
-    make_fig_dbm()
-    make_fig_dbm_state()
+    # make_fig_acc_proc()
+    # make_fig_dbm()
+    # make_fig_dbm_state()

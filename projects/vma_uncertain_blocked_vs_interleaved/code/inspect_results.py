@@ -4,10 +4,10 @@ from util_func import *
 dp = load_data()
 
 # NOTE: inspect individual subjects --- measures
-for i, s in enumerate(dp["subject"].unique()):
-
-    ds = dp[dp["subject"] == s].copy()
-
+# for i, s in enumerate(dp["subject"].unique()):
+# 
+#     ds = dp[dp["subject"] == s].copy()
+# 
 #     fig, ax = plt.subplots(3, 1, squeeze=False, figsize=(5, 12))
 #     fig.subplots_adjust(wspace=0.3, hspace=0.5)
 #
@@ -111,7 +111,7 @@ for i, s in enumerate(dp["subject"].unique()):
 #     plt.close()
 
 # NOTE: Exclude ppts that have abberant movements based on previous two figures
-subs_exc = [5, 10, 17, 30, 31, 35, 37, 40, 57, 62, 999, 1000]
+subs_exc = [5, 10, 30, 35, 40, 57]
 dp = dp[~np.isin(dp["subject"], subs_exc)]
 
 # NOTE: average over subjects
@@ -182,12 +182,9 @@ dpp = dp.groupby(["condition", "trial", "phase", "su_prev"], observed=True)[[
 
 # adapt 1 is trials 30:130
 ph = 2
-dppp1 = dp[(dp["condition"] == "Blocked - Low High") & (dp["phase"] == ph) &
-           (dp["trial"] < 35)].copy()
-dppp2 = dp[(dp["condition"] == "Blocked - High Low") & (dp["phase"] == ph) &
-           (dp["trial"] < 35)].copy()
-dppp3 = dp[(dp["condition"] == "interleaved") & (dp["phase"] == ph) &
-           (dp["trial"] < 35)].copy()
+dppp1 = dp[(dp["condition"] == "Blocked - Low High") & (dp["phase"] == ph) & (dp["trial"] < 35)].copy()
+dppp2 = dp[(dp["condition"] == "Blocked - High Low") & (dp["phase"] == ph) & (dp["trial"] < 35)].copy()
+dppp3 = dp[(dp["condition"] == "interleaved") & (dp["phase"] == ph) & (dp["trial"] < 35)].copy()
 
 # fig, ax = plt.subplots(1, 3, squeeze=False, figsize=(12, 4))
 # fig.subplots_adjust(wspace=0.3, hspace=0.5)

@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     print(dp)
 
-    # fit_ss_model(dp)
+    fit_ss_model(dp)
 
     froot = "../fits/"
 
