@@ -48,6 +48,8 @@ def fit_ss_model(d):
 
         for sub in dcnd["subject"].unique():
 
+            print(sub)
+
             dsub = dcnd[dcnd["subject"] == sub].copy()
             dsub = dsub[dsub["phase"].isin([1, 2, 3, 4])]
             dsub = dsub[["rotation", "emv", "trial", "su", "phase"]]

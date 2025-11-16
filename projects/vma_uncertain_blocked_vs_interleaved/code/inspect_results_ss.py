@@ -5,8 +5,6 @@ if __name__ == "__main__":
 
     dp = load_data()
 
-    print(dp)
-
     fit_ss_model(dp)
 
     froot = "../fits/"
