@@ -5,7 +5,10 @@ if __name__ == "__main__":
 
     dp = load_data()
 
-    fit_ss_model(dp)
+    subs_exc = [5, 10, 30, 35, 40, 57]
+    dp = dp[~np.isin(dp["subject"], subs_exc)]
+
+    # fit_ss_model(dp)
 
     froot = "../fits/"
 
@@ -63,15 +66,20 @@ if __name__ == "__main__":
     beta_interleaved_low = dfits[dfits["condition"] == "interleaved"]["beta_low"]
     beta_interleaved_high = dfits[dfits["condition"] == "interleaved"]["beta_high"]
 
-    print(pg.ttest(alpha_blocked_low, alpha_blocked_high, paired=False))
-    print(pg.ttest(beta_blocked_low, beta_blocked_high, paired=False))
-    print(pg.ttest(alpha_interleaved_low, alpha_interleaved_high, paired=True))
-    print(pg.ttest(beta_interleaved_low, beta_interleaved_high, paired=True))
+    ax[0, 0].boxplot([alpha_blocked_low, alpha_blocked_high], positions=[0, 1])
+    ax[0, 1].boxplot([beta_blocked_low, beta_blocked_high], positions=[0, 1])
+    ax[1, 0].boxplot([alpha_interleaved_low, alpha_interleaved_high], positions=[0, 1])
+    ax[1, 1].boxplot([beta_interleaved_low, beta_interleaved_high], positions=[0, 1])
 
-    ax[0, 0].boxplot([alpha_blocked_low, alpha_blocked_high])
-    ax[0, 1].boxplot([beta_blocked_low, beta_blocked_high])
-    ax[1, 0].boxplot([alpha_interleaved_low, alpha_interleaved_high])
-    ax[1, 1].boxplot([beta_interleaved_low, beta_interleaved_high])
+    # plot raw data points
+    ax[0, 0].scatter(np.zeros_like(alpha_blocked_low), alpha_blocked_low, color="k", alpha=0.5)
+    ax[0, 0].scatter(np.ones_like(alpha_blocked_high), alpha_blocked_high, color="k", alpha=0.5)
+    ax[0, 1].scatter(np.zeros_like(beta_blocked_low), beta_blocked_low, color="k", alpha=0.5)
+    ax[0, 1].scatter(np.ones_like(beta_blocked_high), beta_blocked_high, color="k", alpha=0.5)
+    ax[1, 0].scatter(np.zeros_like(alpha_interleaved_low), alpha_interleaved_low, color="k", alpha=0.5)
+    ax[1, 0].scatter(np.ones_like(alpha_interleaved_high), alpha_interleaved_high, color="k", alpha=0.5)
+    ax[1, 1].scatter(np.zeros_like(beta_interleaved_low), beta_interleaved_low, color="k", alpha=0.5)
+    ax[1, 1].scatter(np.ones_like(beta_interleaved_high), beta_interleaved_high, color="k", alpha=0.5)
 
     ax[0, 0].set_xticklabels(["Low", "High"])
     ax[0, 1].set_xticklabels(["Low", "High"])
@@ -90,28 +98,16 @@ if __name__ == "__main__":
 
     plt.show()
 
-    df_long = dfits.melt(id_vars="condition",
-                         value_vars=["alpha_low", "alpha_high", "beta"],
-                         var_name="parameter",
-                         value_name="value")
+    print(pg.ttest(alpha_blocked_low, alpha_blocked_high, paired=False))
+    print(pg.ttest(beta_blocked_low, beta_blocked_high, paired=False))
+    print(pg.ttest(alpha_interleaved_low, alpha_interleaved_high, paired=True))
+    print(pg.ttest(beta_interleaved_low, beta_interleaved_high, paired=True))
 
-    conditions = df_long["condition"].unique()
-    fig, axes = plt.subplots(1,
-                             len(conditions),
-                             figsize=(5 * len(conditions), 6),
-                             sharey=True)
-
-    for ax, cond in zip(axes, conditions):
-        sns.boxplot(data=df_long[df_long["condition"] == cond],
-                    x="parameter",
-                    y="value",
-                    ax=ax)
-        ax.set_title(f"Condition: {cond}")
-        ax.set_xlabel("Parameter")
-        ax.set_ylabel("Value")
-
-    plt.tight_layout()
-    plt.show()
+    # print non-parametric test results
+    print(pg.mwu(alpha_blocked_low, alpha_blocked_high))
+    print(pg.mwu(beta_blocked_low, beta_blocked_high))
+    print(pg.wilcoxon(alpha_interleaved_low, alpha_interleaved_high))
+    print(pg.wilcoxon(beta_interleaved_low, beta_interleaved_high))
 
     # generate predicted data for each subject and condition
     for c in dfits["condition"].unique():
@@ -119,34 +115,37 @@ if __name__ == "__main__":
         dc = dp[dp["condition"] == c]
         for s in dc["subject"].unique():
             ds = dc[dc["subject"] == s]
-            ds = ds.iloc[:424, :]
+            # ds = ds[ds["phase"].isin([1, 2, 3, 4])]
+            ds = ds.iloc[:225,:].reset_index(drop=True) # becuase missing trials
             fs = dfits[(dfits["subject"] == s) & (dfits["condition"] == c)]
             alpha_low = fs["alpha_low"].values[0]
             alpha_high = fs["alpha_high"].values[0]
-            beta = fs["beta"].values[0]
+            beta_low = fs["beta_low"].values[0]
+            beta_high = fs["beta_high"].values[0]
 
             su = ds["su"].values
+            phase = ds["phase"].values
             r = ds["rotation"].values
             x_obs = ds["emv"].values
 
-            params = (alpha_low, alpha_high, beta)
-            args = (r, x_obs, su)
+            params = (alpha_low, alpha_high, beta_low, beta_high)
+            args = (r, x_obs, su, phase)
 
             d_pred = sim_func(params, args)[1]
 
-            # fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
-            # ax[0, 0].plot(x_obs, color="k", alpha=0.5, label="observed")
-            # ax[0, 0].plot(d_pred, color="r", alpha=0.5, label="predicted")
-            # ax[0, 0].set_title(f"{c} - sub {s}")
-            # ax[0, 0].legend()
-            # plt.show()
+            fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
+            ax[0, 0].plot(x_obs, color="k", alpha=0.5, label="observed")
+            ax[0, 0].plot(d_pred, color="r", alpha=0.5, label="predicted")
+            ax[0, 0].set_title(f"{c} - sub {s}")
+            ax[0, 0].legend()
+            plt.show()
 
             d_pred_list.append(d_pred)
 
         d_pred = np.vstack(d_pred_list)
 
-        # fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
-        # for i in range(d_pred.shape[0]):
-        #     ax[0, 0].plot(d_pred[i, :], color="k", alpha=0.1)
-        # ax[0, 0].set_title(c)
-        # plt.show()
+        fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
+        for i in range(d_pred.shape[0]):
+            ax[0, 0].plot(d_pred[i, :], color="k", alpha=0.1)
+        ax[0, 0].set_title(c)
+        plt.show()
