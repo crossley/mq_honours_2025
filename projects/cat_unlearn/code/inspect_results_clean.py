@@ -52,11 +52,105 @@ def make_fig_cat_struct():
     d = d[["cat", "x", "y", "phase", "condition"]]
     d = d.drop_duplicates()
 
-    fig, ax = plt.subplots(2, 3, figsize=(10, 6))
+    # map condition names from relearn to Relearn, new_learn to New Learn
+    d["condition"] = d["condition"].map(
+        {"relearn": "Relearn", "new_learn": "New Learn"}
+    )
 
+    fig = plt.figure(figsize=(8, 6))
+
+    # 9x9 grid; tweak wspace/hspace as desired
+    gs = gridspec.GridSpec(
+        9, 9,
+        figure=fig,
+        wspace=0.75,
+        hspace=0.5
+    )
+
+    axx_learn = fig.add_subplot(gs[3:6, 0:3])
+    axx_intervention = fig.add_subplot(gs[3:6, 3:6])
+    axx_test_relearn = fig.add_subplot(gs[1:4, 6:9])
+    axx_test_newlearn = fig.add_subplot(gs[5:8, 6:9])
+
+    # ------------------------------------------------
+    # Plot Learn
+    sns.scatterplot(
+        data=d[d["phase"] == "Learn"],
+        x="x",
+        y="y",
+        hue="cat",
+        alpha=0.5,
+        legend=False,
+        ax=axx_learn,
+    )
+    axx_learn.set_title("Learn")
+    axx_learn.set_xticks([])
+    axx_learn.set_yticks([])
+    axx_learn.set_xlabel("Spatial Frequency")
+    axx_learn.set_ylabel("Orientation")
+
+    # Plot Intervention
+    sns.scatterplot(
+        data=d[d["phase"] == "Intervention"],
+        x="x",
+        y="y",
+        hue="cat",
+        alpha=0.5,
+        legend=False,
+        ax=axx_intervention,
+    )
+    axx_intervention.set_title("Intervention")
+    axx_intervention.set_xticks([])
+    axx_intervention.set_yticks([])
+    axx_intervention.set_xlabel("")
+    axx_intervention.set_ylabel("")
+
+    # ------------------------------------------------
+    # Test – Relearn
+    dc_relearn = d[d["condition"] == "Relearn"].copy()
+    dcp_relearn = dc_relearn[dc_relearn["phase"] == "Test"].copy()
+
+    sns.scatterplot(
+        data=dcp_relearn,
+        x="x",
+        y="y",
+        hue="cat",
+        alpha=0.5,
+        legend=False,
+        ax=axx_test_relearn,
+    )
+    axx_test_relearn.set_title("Test – Relearn")
+    axx_test_relearn.set_xticks([])
+    axx_test_relearn.set_yticks([])
+    axx_test_relearn.set_xlabel("")
+    axx_test_relearn.set_ylabel("")
+
+    # Test – New Learn
+    dc_newlearn = d[d["condition"] == "New Learn"].copy()
+    dcp_newlearn = dc_newlearn[dc_newlearn["phase"] == "Test"].copy()
+
+    sns.scatterplot(
+        data=dcp_newlearn,
+        x="x",
+        y="y",
+        hue="cat",
+        alpha=0.5,
+        legend=False,
+        ax=axx_test_newlearn,
+    )
+    axx_test_newlearn.set_title("Test – New Learn")
+    axx_test_newlearn.set_xticks([])
+    axx_test_newlearn.set_yticks([])
+    axx_test_newlearn.set_xlabel("")
+    axx_test_newlearn.set_ylabel("")
+
+    plt.savefig("../figures/fig_cat_struct_2.pdf", bbox_inches="tight")
+    plt.close()
+
+    fig, ax = plt.subplots(2, 3, figsize=(10, 6))
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
-    for i, cnd in enumerate(["relearn", "new_learn"]):
+    for i, cnd in enumerate(["Relearn", "New Learn"]):
 
         dc = d[d["condition"] == cnd].copy()
 
@@ -77,8 +171,13 @@ def make_fig_cat_struct():
                 ax=axx,
             )
             axx.set_title(f"{cnd} - {phs}")
+            axx.set_xticks([])
+            axx.set_yticks([])
+            axx.set_xlabel("Spatial Frequency")
+            axx.set_ylabel("Orientation")
 
-    plt.savefig("../figures/fig_cat_struct.png", dpi=300, bbox_inches="tight")
+
+    plt.savefig("../figures/fig_cat_struct.pdf", bbox_inches="tight")
     plt.close()
 
 
@@ -125,8 +224,8 @@ def make_fig_acc_all():
     d["condition"] = d["condition"].astype("category")
     d = d.groupby(["experiment", "condition", "subject", "phase", "block"],
                   observed=True)["acc"].mean().reset_index()
-    d1 = d[d["experiment"] == 1]
-    d2 = d[d["experiment"] == 2]
+    d1 = d[d["experiment"] == 1].copy()
+    d2 = d[d["experiment"] == 2].copy()
 
     fig, ax = plt.subplots(1, 2, squeeze=False, figsize=(12, 6))
 
@@ -152,18 +251,18 @@ def make_fig_acc_all():
         axx.legend(loc="lower left", ncol=2)
 
     plt.tight_layout()
-    plt.savefig("../figures/subjects_accuracy_all.png", dpi=300)
+    plt.savefig("../figures/subjects_accuracy_all.pdf")
     plt.close()
 
-    # NOTE: show Experiment 2: by phase
+    # NOTE: show Experiment 1: by phase
     # set default color pallete
     fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
-    d2["condition"] = d2["condition"].map(
+    d1["condition"] = d1["condition"].map(
         {"relearn": "Relearn", "new_learn": "New Learn"})
-    d2["condition"] = pd.Categorical(
-        d2["condition"], categories=["Relearn", "New Learn"], ordered=True)
-    d2["block"] = d2["block"] + 1
-    sns.lineplot(data=d2,
+    d1["condition"] = pd.Categorical(
+        d1["condition"], categories=["Relearn", "New Learn"], ordered=True)
+    d1["block"] = d1["block"] + 1
+    sns.lineplot(data=d1,
                  x="block",
                  y="acc",
                  hue="condition",
@@ -171,7 +270,7 @@ def make_fig_acc_all():
                  ax=ax[0, 0])
     ax[0, 0].axvline(x=12.5, color='gray', linestyle='--')
     ax[0, 0].axvline(x=24.5, color='gray', linestyle='--')
-    ax[0, 0].set_title(r"Experiment 3: Mixed Feedback Intervention with $\bf{Verbal~Instruction}$", fontsize=14)
+    ax[0, 0].set_title(r"Experiment 1: Random Feedback Intervention with $\bf{Verbal~Instruction}$", fontsize=14)
     ax[0, 0].set_xlabel("Block", fontsize=14)
     ax[0, 0].set_ylabel("Accuracy", fontsize=14)
     ax[0, 0].set_xlim(0, 37)
@@ -234,7 +333,88 @@ def make_fig_acc_all():
     ax_inset_4.spines['left'].set_linewidth(2)
     ax_inset_4.spines['right'].set_linewidth(2)
     plt.tight_layout()
-    plt.savefig("../figures/subjects_accuracy_talk.png")
+    plt.savefig("../figures/subjects_accuracy_talk_exp_1.pdf")
+    plt.close()
+
+    # NOTE: show Experiment 2: by phase
+    # set default color pallete
+    fig, ax = plt.subplots(1, 1, squeeze=False, figsize=(8, 6))
+    d2["condition"] = d2["condition"].map(
+        {"relearn": "Relearn", "new_learn": "New Learn"})
+    d2["condition"] = pd.Categorical(
+        d2["condition"], categories=["Relearn", "New Learn"], ordered=True)
+    d2["block"] = d2["block"] + 1
+    sns.lineplot(data=d2,
+                 x="block",
+                 y="acc",
+                 hue="condition",
+                 marker="o",
+                 ax=ax[0, 0])
+    ax[0, 0].axvline(x=12.5, color='gray', linestyle='--')
+    ax[0, 0].axvline(x=24.5, color='gray', linestyle='--')
+    ax[0, 0].set_title(r"Experiment 2: Mixed Feedback Intervention with $\bf{Verbal~Instruction}$", fontsize=14)
+    ax[0, 0].set_xlabel("Block", fontsize=14)
+    ax[0, 0].set_ylabel("Accuracy", fontsize=14)
+    ax[0, 0].set_xlim(0, 37)
+    ax[0, 0].set_ylim(0.3, 1.1)
+    ax[0, 0].set_yticks(np.arange(0.2, 1.1, 0.2))
+    ax[0, 0].get_legend().set_title("")
+    ax[0, 0].legend(loc='upper left')
+    ax_inset_1 = ax[0, 0].inset_axes([0.1, 0.05, 0.15, 0.2])
+    ax_inset_2 = ax[0, 0].inset_axes([0.425, 0.05, 0.15, 0.2])
+    ax_inset_3 = ax[0, 0].inset_axes([0.76, 0.74, 0.15, 0.2])
+    ax_inset_4 = ax[0, 0].inset_axes([0.76, 0.05, 0.15, 0.2])
+    # dp["condition"] = dp["condition"].map( {"relearn": "Relearn", "new_learn": "New Learn"})
+    sns.scatterplot(data=dp[dp["condition"] == "Relearn"].iloc[0:300, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_1,
+                    legend=False)
+    sns.scatterplot(data=dp[dp["condition"] == "Relearn"].iloc[300:600, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_2,
+                    legend=False)
+    sns.scatterplot(data=dp[dp["condition"] == "Relearn"].iloc[600:899, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_3,
+                    legend=False)
+    sns.scatterplot(data=dp[dp["condition"] == "New Learn"].iloc[600:899, :],
+                    x="x",
+                    y="y",
+                    hue="cat",
+                    ax=ax_inset_4,
+                    legend=False)
+    ax_inset_1.set_title("Learn", fontsize=14)
+    ax_inset_2.set_title("Intervention", fontsize=14)
+    ax_inset_3.set_title("Test: Relearn", fontsize=14)
+    ax_inset_4.set_title("Test: New Learn", fontsize=14)
+    [x.set_xticks([]) for x in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    [y.set_yticks([]) for y in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    [x.set_xlabel("") for x in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    [y.set_ylabel("") for y in [ax_inset_1, ax_inset_2, ax_inset_3, ax_inset_4]]
+    ax_inset_3.spines['top'].set_color('C0')
+    ax_inset_3.spines['bottom'].set_color('C0')
+    ax_inset_3.spines['left'].set_color('C0')
+    ax_inset_3.spines['right'].set_color('C0')
+    ax_inset_3.spines['top'].set_linewidth(2)
+    ax_inset_3.spines['bottom'].set_linewidth(2)
+    ax_inset_3.spines['left'].set_linewidth(2)
+    ax_inset_3.spines['right'].set_linewidth(2)
+    ax_inset_4.spines['top'].set_color('C1')
+    ax_inset_4.spines['bottom'].set_color('C1')
+    ax_inset_4.spines['left'].set_color('C1')
+    ax_inset_4.spines['right'].set_color('C1')
+    ax_inset_4.spines['top'].set_linewidth(2)
+    ax_inset_4.spines['bottom'].set_linewidth(2)
+    ax_inset_4.spines['left'].set_linewidth(2)
+    ax_inset_4.spines['right'].set_linewidth(2)
+    plt.tight_layout()
+    plt.savefig("../figures/subjects_accuracy_talk_exp_2.pdf")
     plt.close()
 
 
@@ -380,7 +560,7 @@ def make_fig_acc_proc():
         axx.set_ylim(.3, 1)
         axx.legend(loc="lower left", ncol=2)
     plt.tight_layout()
-    plt.savefig("../figures/subjects_accuracy_proc.png", dpi=300)
+    plt.savefig("../figures/subjects_accuracy_proc.pdf")
     plt.close()
 
 def make_fig_dbm():
@@ -490,10 +670,10 @@ def make_fig_dbm():
 
     # (row, col, experiment, condition, title)
     panels = [
-        (0, 0, 1, "relearn", "Exp 1 — relearn"),
-        (0, 1, 1, "new_learn", "Exp 1 — new_learn"),
-        (1, 0, 2, "relearn", "Exp 2 — relearn"),
-        (1, 1, 2, "new_learn", "Exp 2 — new_learn"),
+        (0, 0, 1, "relearn", "Exp 1 — Relearn"),
+        (0, 1, 1, "new_learn", "Exp 1 — New Learn"),
+        (1, 0, 2, "relearn", "Exp 2 — Relearn"),
+        (1, 1, 2, "new_learn", "Exp 2 — New Learn"),
     ]
 
     for r, c, exp, cond, title in panels:
@@ -506,7 +686,7 @@ def make_fig_dbm():
         axx.set_ylabel("Train")
 
     fig.tight_layout()
-    plt.savefig("../figures/best_model_class_heatmap.png", dpi=300)
+    plt.savefig("../figures/best_model_class_heatmap.pdf")
     plt.close()
 
 
@@ -636,13 +816,13 @@ def make_fig_dbm_state():
         f"Exp 2 — Relearn − New Learn: 95% CI = {ci_exp2[0]:.3f} to {ci_exp2[1]:.3f}, P(Δ > 0) = {prob_exp2:.3f}"
     )
 
-    plt.savefig("../figures/bayesian_comparison.png", dpi=300)
+    plt.savefig("../figures/bayesian_comparison.pdf")
     plt.close()
 
 
 if __name__ == "__main__":
 
-    # sns.set_palette("colorblind")
+    sns.set_palette("colorblind")
 
     # make_fig_cat_struct()
     make_fig_acc_all()
