@@ -5,10 +5,10 @@ if __name__ == "__main__":
 
     dp = load_data()
 
-    subs_exc = [5, 10, 30, 35, 40, 57]
-    dp = dp[~np.isin(dp["subject"], subs_exc)]
+    # subs_exc = [5, 10, 30, 35, 40, 57]
+    # dp = dp[~np.isin(dp["subject"], subs_exc)]
 
-    # fit_ss_model(dp)
+    fit_ss_model(dp)
 
     froot = "../fits/"
 
