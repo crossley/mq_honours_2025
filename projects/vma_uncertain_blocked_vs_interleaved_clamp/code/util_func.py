@@ -48,19 +48,18 @@ def fit_ss_model(d):
 
         for sub in dcnd["subject"].unique():
 
-            dsub = dcnd[dcnd["subject"] == sub][[
-                "rotation", "emv", "trial", "su"
-            ]].copy()
+            print(sub)
+
+            dsub = dcnd[dcnd["subject"] == sub].copy()
+            dsub = dsub[dsub["phase"].isin([2, 3])]
+            dsub = dsub[["rotation", "emv", "trial", "su", "phase"]]
 
             rot = dsub["rotation"].to_numpy()
             x_obs = dsub["emv"].to_numpy()
             su = dsub["su"].to_numpy()
+            phase = dsub["phase"].to_numpy()
 
-            rot = rot[:220]
-            x_obs = x_obs[:220]
-            su = su[:220]
-
-            args = (rot, x_obs, su)
+            args = (rot, x_obs, su, phase)
 
             results = differential_evolution(
                 func=fit_args["obj_func"],
@@ -107,6 +106,7 @@ def sim_func(params, args):
     r = args[0]
     x_obs = args[1]
     su = args[2]
+    phase = args[3]
 
     n_trials = r.shape[0]
 
@@ -118,16 +118,15 @@ def sim_func(params, args):
 
         yff[i] = xff[i]
 
-        delta[i] = yff[i] + r[i]
+        if phase[i] != 3:
+            delta[i] = yff[i] + r[i]
+        else:
+            delta[i] = 0.0
 
         if su[i] == "low":
-            xff[i + 1] = beta_low * xff[i] + alpha_low * (delta[i] - yff[i])
+            xff[i + 1] = beta_low * xff[i] + alpha_low * delta[i]
         else:
-            xff[i + 1] = beta_high * xff[i] + alpha_high * (delta[i] - yff[i])
-
-    # plt.plot(x_obs)
-    # plt.plot(xff)
-    # plt.show()
+            xff[i + 1] = beta_high * xff[i] + alpha_high * delta[i]
 
     return (yff, xff)
 
@@ -138,8 +137,9 @@ def obj_func(params, *args):
     rot = obs[0]
     x_obs = obs[1]
     su = obs[2]
+    phase = obs[3]
 
-    args = (rot, x_obs, su)
+    args = (rot, x_obs, su, phase)
 
     x_pred = sim_func(params, args)[0]
 
