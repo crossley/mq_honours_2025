@@ -238,7 +238,8 @@ def fit_regression(d):
     d["exp_fast"] = 1 - np.exp(-0.3 * d["trial"])
     d["exp_med"] = 1 - np.exp(-0.03 * d["trial"])
     md = smf.mixedlm(
-        "emv ~ C(su_prev, Diff)*movement_error_prev + exp_fast + exp_med",
+        # "emv ~ C(su_prev, Diff)*movement_error_prev + exp_fast + exp_med",
+        "emv ~ C(su_prev, Diff)*movement_error_prev + exp_med",
         data=d,
         groups=d["subject"])
 
@@ -272,5 +273,3 @@ fit_regression(dpp)
 
 dpp = dp[(dp["condition"] == "interleaved") & (dp["phase"] == ph)].copy()
 fit_regression(dpp)
-
-

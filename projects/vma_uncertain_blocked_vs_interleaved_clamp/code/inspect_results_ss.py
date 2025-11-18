@@ -5,7 +5,7 @@ if __name__ == "__main__":
 
     dp = load_data()
 
-    # subs_exc = [5, 7, 10, 17, 30, 31, 35, 40, 43, 49, 55, 57, 63]
+    # subs_exc = []
     # dp = dp[~np.isin(dp["subject"], subs_exc)]
 
     # fit_ss_model(dp)
